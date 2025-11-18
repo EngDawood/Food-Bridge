@@ -1,0 +1,25 @@
+@import 'tailwindcss';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source "../**/*.blade.php";
+@source "../**/*.js";
+@source "../**/*.vue";
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --color-primary-900: #192338;
+    /* Oxford Blue */
+    --color-primary-800: #1E2E4F;
+    /* Space Cadet */
+    --color-primary-700: #31487A;
+    /* YInMn Blue */
+    --color-primary-300: #8FB3E2;
+    /* Jordy Blue */
+    --color-primary-100: #D9E1F1;
+    /* Lavender */
+    --color-accent-500: #F59E0B;
+    /* Amber CTA */
+    --color-success-600: #16A34A;
+    --color-error-600: #DC2626;
+    --color-surface: #FFFFFF;
+    --color-surface-muted: #F7F9FC;
+}
