@@ -156,7 +156,7 @@ class ReportService implements ReportServiceInterface
 
         $totalRequests = $requestQuery->count();
 
-        $matchedQuery = FoodRequest::query()->whereNotNull('matched_donation_id');
+        $matchedQuery = FoodRequest::query()->whereNotNull('donation_id');
         $this->applyDateFilters($matchedQuery, $filters);
         $matched = $matchedQuery->count();
 
