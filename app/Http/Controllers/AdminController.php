@@ -155,6 +155,45 @@ class AdminController extends Controller
         return redirect()->route('admin.reports.index')->with('status', 'Report created successfully');
     }
 
+    public function statistics()
+    {
+        // Total counts (all time)
+        $totalDonations = Donation::count();
+        $totalRequests = FoodRequest::count();
+        $totalMatches = FoodRequest::where('status', 'fulfilled')->count();
+        $totalDeliveries = DeliveryTask::where('status', 'completed')->count();
+        $totalDonors = User::where('role', 'donor')->count();
+        $totalBeneficiaries = User::where('role', 'beneficiary')->count();
+        $totalVolunteers = User::where('role', 'volunteer')->count();
+        $totalAdmins = User::where('role', 'admin')->count();
+
+        // This month's numbers
+        $startOfMonth = now()->startOfMonth();
+        $donationsThisMonth = Donation::where('created_at', '>=', $startOfMonth)->count();
+        $requestsThisMonth = FoodRequest::where('created_at', '>=', $startOfMonth)->count();
+        $matchesThisMonth = FoodRequest::where('status', 'fulfilled')
+            ->where('updated_at', '>=', $startOfMonth)
+            ->count();
+        $activeVolunteers = DeliveryTask::where('status', 'in_progress')
+            ->distinct('volunteer_id')
+            ->count('volunteer_id');
+
+        return view('admin.reports.statistics', compact(
+            'totalDonations',
+            'totalRequests',
+            'totalMatches',
+            'totalDeliveries',
+            'totalDonors',
+            'totalBeneficiaries',
+            'totalVolunteers',
+            'totalAdmins',
+            'donationsThisMonth',
+            'requestsThisMonth',
+            'matchesThisMonth',
+            'activeVolunteers'
+        ));
+    }
+
     public function feedbackIndex(Request $request)
     {
         $feedback = Feedback::with(['fromUser:id,name', 'toUser:id,name'])

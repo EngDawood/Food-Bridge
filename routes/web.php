@@ -70,6 +70,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/reports', [AdminController::class, 'reportsIndex'])->name('admin.reports.index');
     Route::get('/admin/reports/create', [AdminController::class, 'reportsCreate'])->name('admin.reports.create');
     Route::post('/admin/reports', [AdminController::class, 'reportsStore'])->name('admin.reports.store');
+    Route::get('/admin/reports/statistics', [AdminController::class, 'statistics'])->name('admin.reports.statistics');
     Route::get('/admin/feedback', [AdminController::class, 'feedbackIndex'])->name('admin.feedback');
     Route::post('/admin/feedback', [AdminController::class, 'feedbackStore'])->name('admin.feedback.store');
     Route::post('/admin/promote', [AdminController::class, 'promoteUser'])->name('admin.promote');
