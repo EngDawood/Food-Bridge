@@ -13,13 +13,18 @@ class Report extends Model
 
     protected $fillable = [
         'admin_id',
+        'type',
         'title',
         'content',
+        'data',
+        'report_date',
         'created_at',
     ];
 
     protected $casts = [
         'created_at' => 'datetime',
+        'report_date' => 'date',
+        'data' => 'array',
     ];
 
     public function admin()

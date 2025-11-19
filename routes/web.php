@@ -67,9 +67,20 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::put('/admin/users/{user}', [AdminController::class, 'usersUpdate'])->name('admin.users.update');
     Route::delete('/admin/users/{user}', [AdminController::class, 'usersDestroy'])->name('admin.users.destroy');
     Route::get('/admin/transactions', [AdminController::class, 'transactions'])->name('admin.transactions');
-    Route::get('/admin/reports', [AdminController::class, 'reportsIndex'])->name('admin.reports.index');
-    Route::get('/admin/reports/create', [AdminController::class, 'reportsCreate'])->name('admin.reports.create');
-    Route::post('/admin/reports', [AdminController::class, 'reportsStore'])->name('admin.reports.store');
+
+    // Enhanced Reports System
+    Route::get('/admin/reports', [\App\Http\Controllers\Admin\ReportAdminController::class, 'index'])->name('admin.reports.index');
+    Route::get('/admin/reports/analytics', [\App\Http\Controllers\Admin\ReportAdminController::class, 'analytics'])->name('admin.reports.analytics');
+    Route::get('/admin/reports/create', [\App\Http\Controllers\Admin\ReportAdminController::class, 'create'])->name('admin.reports.create');
+    Route::post('/admin/reports', [\App\Http\Controllers\Admin\ReportAdminController::class, 'store'])->name('admin.reports.store');
+    Route::get('/admin/reports/{report}', [\App\Http\Controllers\Admin\ReportAdminController::class, 'show'])->name('admin.reports.show');
+    Route::delete('/admin/reports/{report}', [\App\Http\Controllers\Admin\ReportAdminController::class, 'destroy'])->name('admin.reports.destroy');
+    Route::post('/admin/reports/generate/daily', [\App\Http\Controllers\Admin\ReportAdminController::class, 'generateDaily'])->name('admin.reports.generate.daily');
+    Route::post('/admin/reports/generate/weekly', [\App\Http\Controllers\Admin\ReportAdminController::class, 'generateWeekly'])->name('admin.reports.generate.weekly');
+    Route::post('/admin/reports/generate/monthly', [\App\Http\Controllers\Admin\ReportAdminController::class, 'generateMonthly'])->name('admin.reports.generate.monthly');
+    Route::get('/admin/reports/export/pdf', [\App\Http\Controllers\Admin\ReportAdminController::class, 'exportPdf'])->name('admin.reports.export.pdf');
+    Route::get('/admin/reports/export/excel', [\App\Http\Controllers\Admin\ReportAdminController::class, 'exportExcel'])->name('admin.reports.export.excel');
+
     Route::get('/admin/feedback', [AdminController::class, 'feedbackIndex'])->name('admin.feedback');
     Route::post('/admin/feedback', [AdminController::class, 'feedbackStore'])->name('admin.feedback.store');
     Route::post('/admin/promote', [AdminController::class, 'promoteUser'])->name('admin.promote');
