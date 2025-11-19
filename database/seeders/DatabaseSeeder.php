@@ -24,74 +24,74 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@foodbridge.sa',
             'password' => Hash::make('yyy'),
             'role' => 'admin',
-            'location' => 'الجوف، سكاكا',
+            'location' => 'Al-Jouf, Sakaka',
         ]);
 
         // Create Donors
         $donors = [
             User::create([
-                'name' => 'نورة عبدالعزيز',
+                'name' => 'Nora Abdulaziz',
                 'email' => 'nora@foodbridge.sa',
                 'password' => Hash::make('password'),
                 'role' => 'donor',
-                'location' => 'الجوف، سكاكا، حي النزهة',
+                'location' => 'Al-Jouf, Sakaka, Al-Nuzha District',
             ]),
             User::create([
-                'name' => 'خالد محمد',
+                'name' => 'Khaled Mohammed',
                 'email' => 'khaled@foodbridge.sa',
                 'password' => Hash::make('password'),
                 'role' => 'donor',
-                'location' => 'الجوف، دومة الجندل',
+                'location' => 'Al-Jouf, Dumat Al-Jandal',
             ]),
             User::create([
-                'name' => 'مطعم الخير',
+                'name' => 'Al-Khair Restaurant',
                 'email' => 'alkheir@foodbridge.sa',
                 'password' => Hash::make('password'),
                 'role' => 'donor',
-                'location' => 'الجوف، سكاكا، حي الورود',
+                'location' => 'Al-Jouf, Sakaka, Al-Wurud District',
             ]),
         ];
 
         // Create Beneficiaries
         $beneficiaries = [
             User::create([
-                'name' => 'فاطمة أحمد',
+                'name' => 'Fatima Ahmed',
                 'email' => 'fatima@foodbridge.sa',
                 'password' => Hash::make('password'),
                 'role' => 'beneficiary',
-                'location' => 'الجوف، سكاكا، حي النزهة',
+                'location' => 'Al-Jouf, Sakaka, Al-Nuzha District',
             ]),
             User::create([
-                'name' => 'عبدالله سعيد',
+                'name' => 'Abdullah Saeed',
                 'email' => 'abdullah@foodbridge.sa',
                 'password' => Hash::make('password'),
                 'role' => 'beneficiary',
-                'location' => 'الجوف، دومة الجندل',
+                'location' => 'Al-Jouf, Dumat Al-Jandal',
             ]),
             User::create([
-                'name' => 'مريم حسن',
+                'name' => 'Maryam Hassan',
                 'email' => 'maryam@foodbridge.sa',
                 'password' => Hash::make('password'),
                 'role' => 'beneficiary',
-                'location' => 'الجوف، سكاكا، حي الصناعية',
+                'location' => 'Al-Jouf, Sakaka, Industrial District',
             ]),
         ];
 
         // Create Volunteers
         $volunteers = [
             User::create([
-                'name' => 'محمد العنزي',
+                'name' => 'Mohammed Al-Anazi',
                 'email' => 'mohammed@foodbridge.sa',
                 'password' => Hash::make('password'),
                 'role' => 'volunteer',
-                'location' => 'الجوف، سكاكا',
+                'location' => 'Al-Jouf, Sakaka',
             ]),
             User::create([
-                'name' => 'سارة الشمري',
+                'name' => 'Sara Al-Shammari',
                 'email' => 'sara@foodbridge.sa',
                 'password' => Hash::make('password'),
                 'role' => 'volunteer',
-                'location' => 'الجوف، دومة الجندل',
+                'location' => 'Al-Jouf, Dumat Al-Jandal',
             ]),
         ];
 
@@ -99,7 +99,7 @@ class DatabaseSeeder extends Seeder
         $donations = [
             Donation::create([
                 'donor_id' => $donors[0]->id,
-                'food_type' => 'وجبات مطبوخة',
+                'food_type' => 'cooked',
                 'quantity' => 10,
                 'expiration_date' => now()->addDays(1),
                 'pickup_time' => now()->addHours(2),
@@ -107,7 +107,7 @@ class DatabaseSeeder extends Seeder
             ]),
             Donation::create([
                 'donor_id' => $donors[1]->id,
-                'food_type' => 'خضروات طازجة',
+                'food_type' => 'vegetables',
                 'quantity' => 5,
                 'expiration_date' => now()->addDays(3),
                 'pickup_time' => now()->addHours(4),
@@ -115,7 +115,7 @@ class DatabaseSeeder extends Seeder
             ]),
             Donation::create([
                 'donor_id' => $donors[2]->id,
-                'food_type' => 'وجبات مطبوخة',
+                'food_type' => 'cooked',
                 'quantity' => 20,
                 'expiration_date' => now()->addDays(1),
                 'pickup_time' => now()->addHours(3),
@@ -123,7 +123,7 @@ class DatabaseSeeder extends Seeder
             ]),
             Donation::create([
                 'donor_id' => $donors[0]->id,
-                'food_type' => 'فواكه طازجة',
+                'food_type' => 'fruits',
                 'quantity' => 8,
                 'expiration_date' => now()->addDays(2),
                 'pickup_time' => now()->addHours(5),
@@ -131,7 +131,7 @@ class DatabaseSeeder extends Seeder
             ]),
             Donation::create([
                 'donor_id' => $donors[2]->id,
-                'food_type' => 'معلبات وأطعمة معبأة',
+                'food_type' => 'canned',
                 'quantity' => 15,
                 'expiration_date' => now()->addDays(30),
                 'pickup_time' => now()->addHours(6),
@@ -139,7 +139,7 @@ class DatabaseSeeder extends Seeder
             ]),
             Donation::create([
                 'donor_id' => $donors[1]->id,
-                'food_type' => 'وجبات مطبوخة',
+                'food_type' => 'cooked',
                 'quantity' => 12,
                 'expiration_date' => now()->subDay(),
                 'pickup_time' => now()->subHours(2),
@@ -147,7 +147,7 @@ class DatabaseSeeder extends Seeder
             ]),
             Donation::create([
                 'donor_id' => $donors[0]->id,
-                'food_type' => 'خبز طازج',
+                'food_type' => 'bread',
                 'quantity' => 25,
                 'expiration_date' => now()->addDay(),
                 'pickup_time' => now()->addHours(1),
@@ -155,7 +155,7 @@ class DatabaseSeeder extends Seeder
             ]),
             Donation::create([
                 'donor_id' => $donors[2]->id,
-                'food_type' => 'وجبات مطبوخة',
+                'food_type' => 'cooked',
                 'quantity' => 30,
                 'expiration_date' => now()->addHours(12),
                 'pickup_time' => now()->addHours(2),
@@ -167,53 +167,53 @@ class DatabaseSeeder extends Seeder
         $requests = [
             FoodRequest::create([
                 'beneficiary_id' => $beneficiaries[0]->id,
-                'food_type' => 'وجبات مطبوخة',
+                'food_type' => 'cooked',
                 'quantity' => 5,
-                'note' => 'لعائلة مكونة من 5 أفراد',
+                'note' => 'For family of 5 members',
                 'status' => 'pending',
             ]),
             FoodRequest::create([
                 'beneficiary_id' => $beneficiaries[1]->id,
-                'food_type' => 'خضروات طازجة',
+                'food_type' => 'vegetables',
                 'quantity' => 3,
-                'note' => 'نحتاج خضروات طازجة',
+                'note' => 'We need fresh vegetables',
                 'status' => 'pending',
             ]),
             FoodRequest::create([
                 'beneficiary_id' => $beneficiaries[2]->id,
-                'food_type' => 'وجبات مطبوخة',
+                'food_type' => 'cooked',
                 'quantity' => 8,
-                'note' => 'عاجل - لعائلة كبيرة',
+                'note' => 'Urgent - for large family',
                 'donation_id' => $donations[2]->id,
                 'status' => 'matched',
             ]),
             FoodRequest::create([
                 'beneficiary_id' => $beneficiaries[0]->id,
-                'food_type' => 'فواكه طازجة',
+                'food_type' => 'fruits',
                 'quantity' => 4,
-                'note' => 'للأطفال',
+                'note' => 'For children',
                 'status' => 'pending',
             ]),
             FoodRequest::create([
                 'beneficiary_id' => $beneficiaries[1]->id,
-                'food_type' => 'معلبات وأطعمة معبأة',
+                'food_type' => 'canned',
                 'quantity' => 10,
-                'note' => 'أطعمة قابلة للتخزين',
+                'note' => 'Storable food items',
                 'status' => 'pending',
             ]),
             FoodRequest::create([
                 'beneficiary_id' => $beneficiaries[2]->id,
-                'food_type' => 'وجبات مطبوخة',
+                'food_type' => 'cooked',
                 'quantity' => 10,
-                'note' => 'لحفل إفطار جماعي',
+                'note' => 'For community breakfast event',
                 'donation_id' => $donations[5]->id,
                 'status' => 'fulfilled',
             ]),
             FoodRequest::create([
                 'beneficiary_id' => $beneficiaries[0]->id,
-                'food_type' => 'خبز طازج',
+                'food_type' => 'bread',
                 'quantity' => 15,
-                'note' => 'خبز يومي',
+                'note' => 'Daily bread',
                 'status' => 'pending',
             ]),
         ];
@@ -248,55 +248,55 @@ class DatabaseSeeder extends Seeder
             'from_user_id' => $beneficiaries[2]->id,
             'to_user_id' => $donors[1]->id,
             'rating' => 5,
-            'comment' => 'الطعام كان طازجاً وممتازاً، شكراً جزيلاً',
+            'comment' => 'The food was fresh and excellent, thank you very much',
         ]);
 
         Feedback::create([
             'from_user_id' => $donors[2]->id,
             'to_user_id' => $volunteers[0]->id,
             'rating' => 5,
-            'comment' => 'متطوع رائع، التوصيل كان سريعاً ومنظماً',
+            'comment' => 'Great volunteer, delivery was fast and well organized',
         ]);
 
         Feedback::create([
             'from_user_id' => $beneficiaries[1]->id,
             'to_user_id' => $volunteers[1]->id,
             'rating' => 4,
-            'comment' => 'خدمة جيدة جداً',
+            'comment' => 'Very good service',
         ]);
 
         // Create Notifications
         SystemNotification::create([
             'user_id' => $beneficiaries[0]->id,
-            'message' => 'تم العثور على تبرع يطابق طلبك',
+            'message' => 'A donation matching your request was found',
             'type' => 'match',
             'is_read' => false,
         ]);
 
         SystemNotification::create([
             'user_id' => $volunteers[0]->id,
-            'message' => 'تم تعيينك لمهمة توصيل جديدة',
+            'message' => 'You have been assigned to a new delivery task',
             'type' => 'alert',
             'is_read' => false,
         ]);
 
         SystemNotification::create([
             'user_id' => $donors[2]->id,
-            'message' => 'تم مطابقة تبرعك مع طلب مستفيد',
+            'message' => 'Your donation has been matched with a beneficiary request',
             'type' => 'match',
             'is_read' => true,
         ]);
 
         SystemNotification::create([
             'user_id' => $beneficiaries[2]->id,
-            'message' => 'تم تسليم طلبك بنجاح',
+            'message' => 'Your request has been successfully delivered',
             'type' => 'update',
             'is_read' => false,
         ]);
 
         SystemNotification::create([
             'user_id' => $donors[1]->id,
-            'message' => 'تلقيت تقييماً جديداً',
+            'message' => 'You received new feedback',
             'type' => 'update',
             'is_read' => false,
         ]);

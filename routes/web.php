@@ -33,7 +33,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/feedback/submit', [FeedbackController::class, 'store'])->name('feedback.submit');
 });
 
-// Donor routes (محمية بدور المتبرع)
+// Donor routes (protected by donor role)
 Route::middleware(['auth', 'role:donor'])->group(function () {
     Route::get('/donations', [DonationController::class, 'index'])->name('donations.index');
     Route::get('/donations/create', [DonationController::class, 'create'])->name('donations.create');
@@ -45,7 +45,7 @@ Route::middleware(['auth', 'role:donor'])->group(function () {
     Route::post('/donations/{donation}/match/{requestModel}', [DonationController::class, 'matchWithRequest'])->name('donations.match.withRequest');
 });
 
-// Beneficiary routes (محمية بدور المستفيد)
+// Beneficiary routes (protected by beneficiary role)
 Route::middleware(['auth', 'role:beneficiary'])->group(function () {
     Route::get('/requests', [FoodRequestController::class, 'index'])->name('requests.index');
     Route::get('/requests/create', [FoodRequestController::class, 'create'])->name('requests.create');
@@ -57,7 +57,7 @@ Route::middleware(['auth', 'role:beneficiary'])->group(function () {
     Route::post('/requests/{requestModel}/match/{donation}', [FoodRequestController::class, 'matchWithDonation'])->name('requests.match.withDonation');
 });
 
-// Admin pages (محمية بدور المشرف)
+// Admin pages (protected by admin role)
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.users');
@@ -95,7 +95,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::delete('/admin/deliveries/{task}', [\App\Http\Controllers\Admin\DeliveryTaskAdminController::class, 'destroy'])->name('admin.deliveries.destroy');
 });
 
-// Volunteer pages (محمية بدور المتطوع)
+// Volunteer pages (protected by volunteer role)
 Route::middleware(['auth', 'role:volunteer'])->group(function () {
     Route::get('/volunteer/available', [VolunteerController::class, 'available'])->name('volunteer.available');
     Route::get('/volunteer/tasks', [VolunteerController::class, 'myTasks'])->name('volunteer.tasks');

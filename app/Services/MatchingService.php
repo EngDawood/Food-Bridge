@@ -207,9 +207,9 @@ class MatchingService
             return 1.0;
         }
 
-        // Split by common delimiters
-        $parts1 = preg_split('/[،,\s]+/', $loc1);
-        $parts2 = preg_split('/[،,\s]+/', $loc2);
+        // Split by common delimiters (comma and whitespace)
+        $parts1 = preg_split('/[,\s]+/', $loc1);
+        $parts2 = preg_split('/[,\s]+/', $loc2);
 
         // Count matching parts
         $matches = 0;
@@ -400,8 +400,8 @@ class MatchingService
         $task = DeliveryTask::create([
             'volunteer_id' => null,
             'donation_id' => $donation->id,
-            'pickup_location' => $donor->location ?? 'غير محدد',
-            'dropoff_location' => $beneficiary->location ?? 'غير محدد',
+            'pickup_location' => $donor->location ?? 'Not specified',
+            'dropoff_location' => $beneficiary->location ?? 'Not specified',
             'status' => 'assigned',
         ]);
 
