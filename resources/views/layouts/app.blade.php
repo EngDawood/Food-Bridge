@@ -30,7 +30,34 @@
                         @includeWhen(auth()->user()->role === 'volunteer', 'layouts.partials.nav-volunteer')
 
                         <a href="/profile" class="hover:underline"><i class="fa-solid fa-user mr-1"></i>Profile</a>
-                        <a href="/notifications" class="hover:underline"><i class="fa-solid fa-bell mr-1"></i>Notifications</a>
+
+                        <!-- Notification Bell with Badge -->
+                        <div class="relative" id="notification-bell-container">
+                            <button id="notification-bell" class="relative hover:opacity-80 transition-opacity" aria-label="Notifications">
+                                <i class="fa-solid fa-bell text-lg"></i>
+                                <span id="notification-badge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">0</span>
+                            </button>
+
+                            <!-- Notification Popup Dropdown -->
+                            <div id="notification-popup" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+                                <div class="p-3 border-b border-gray-200 flex items-center justify-between">
+                                    <h3 class="font-semibold text-gray-900">Notifications</h3>
+                                    <button id="mark-all-read-btn" class="text-xs text-primary-600 hover:text-primary-700 font-medium">
+                                        Mark all as read
+                                    </button>
+                                </div>
+                                <div id="notification-list" class="max-h-96 overflow-y-auto">
+                                    <div class="p-4 text-center text-gray-500 text-sm">
+                                        Loading...
+                                    </div>
+                                </div>
+                                <div class="p-3 border-t border-gray-200 text-center">
+                                    <a href="/notifications" class="text-sm text-primary-600 hover:text-primary-700 font-medium">
+                                        View all notifications
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     @endauth
 
                     @guest

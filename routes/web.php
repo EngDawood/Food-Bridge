@@ -8,6 +8,7 @@ use App\Http\Controllers\DonationController;
 use App\Http\Controllers\FoodRequestController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\NotificationController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -27,8 +28,15 @@ Route::fallback(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [AuthController::class, 'showProfile'])->name('profile');
     Route::post('/profile', [AuthController::class, 'updateProfile'])->name('profile.update');
-    Route::view('/notifications', 'notifications')->name('notifications');
-    
+
+    // Notifications
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
+    Route::get('/api/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('notifications.unreadCount');
+    Route::get('/api/notifications/recent', [NotificationController::class, 'getRecent'])->name('notifications.recent');
+    Route::post('/api/notifications/{id}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.markRead');
+    Route::post('/api/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllRead');
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+
     // User feedback submission
     Route::post('/feedback/submit', [FeedbackController::class, 'store'])->name('feedback.submit');
 });
@@ -67,10 +75,20 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::put('/admin/users/{user}', [AdminController::class, 'usersUpdate'])->name('admin.users.update');
     Route::delete('/admin/users/{user}', [AdminController::class, 'usersDestroy'])->name('admin.users.destroy');
     Route::get('/admin/transactions', [AdminController::class, 'transactions'])->name('admin.transactions');
-    Route::get('/admin/reports', [AdminController::class, 'reportsIndex'])->name('admin.reports.index');
-    Route::get('/admin/reports/create', [AdminController::class, 'reportsCreate'])->name('admin.reports.create');
-    Route::post('/admin/reports', [AdminController::class, 'reportsStore'])->name('admin.reports.store');
-    Route::get('/admin/reports/statistics', [AdminController::class, 'statistics'])->name('admin.reports.statistics');
+
+    // Enhanced Reports System
+    Route::get('/admin/reports', [\App\Http\Controllers\Admin\ReportAdminController::class, 'index'])->name('admin.reports.index');
+    Route::get('/admin/reports/analytics', [\App\Http\Controllers\Admin\ReportAdminController::class, 'analytics'])->name('admin.reports.analytics');
+    Route::get('/admin/reports/create', [\App\Http\Controllers\Admin\ReportAdminController::class, 'create'])->name('admin.reports.create');
+    Route::post('/admin/reports', [\App\Http\Controllers\Admin\ReportAdminController::class, 'store'])->name('admin.reports.store');
+    Route::get('/admin/reports/{report}', [\App\Http\Controllers\Admin\ReportAdminController::class, 'show'])->name('admin.reports.show');
+    Route::delete('/admin/reports/{report}', [\App\Http\Controllers\Admin\ReportAdminController::class, 'destroy'])->name('admin.reports.destroy');
+    Route::post('/admin/reports/generate/daily', [\App\Http\Controllers\Admin\ReportAdminController::class, 'generateDaily'])->name('admin.reports.generate.daily');
+    Route::post('/admin/reports/generate/weekly', [\App\Http\Controllers\Admin\ReportAdminController::class, 'generateWeekly'])->name('admin.reports.generate.weekly');
+    Route::post('/admin/reports/generate/monthly', [\App\Http\Controllers\Admin\ReportAdminController::class, 'generateMonthly'])->name('admin.reports.generate.monthly');
+    Route::get('/admin/reports/export/pdf', [\App\Http\Controllers\Admin\ReportAdminController::class, 'exportPdf'])->name('admin.reports.export.pdf');
+    Route::get('/admin/reports/export/excel', [\App\Http\Controllers\Admin\ReportAdminController::class, 'exportExcel'])->name('admin.reports.export.excel');
+
     Route::get('/admin/feedback', [AdminController::class, 'feedbackIndex'])->name('admin.feedback');
     Route::post('/admin/feedback', [AdminController::class, 'feedbackStore'])->name('admin.feedback.store');
     Route::post('/admin/promote', [AdminController::class, 'promoteUser'])->name('admin.promote');
