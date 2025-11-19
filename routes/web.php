@@ -8,6 +8,7 @@ use App\Http\Controllers\DonationController;
 use App\Http\Controllers\FoodRequestController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\NotificationController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -27,8 +28,15 @@ Route::fallback(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [AuthController::class, 'showProfile'])->name('profile');
     Route::post('/profile', [AuthController::class, 'updateProfile'])->name('profile.update');
-    Route::view('/notifications', 'notifications')->name('notifications');
-    
+
+    // Notifications
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
+    Route::get('/api/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('notifications.unreadCount');
+    Route::get('/api/notifications/recent', [NotificationController::class, 'getRecent'])->name('notifications.recent');
+    Route::post('/api/notifications/{id}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.markRead');
+    Route::post('/api/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllRead');
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+
     // User feedback submission
     Route::post('/feedback/submit', [FeedbackController::class, 'store'])->name('feedback.submit');
 });
