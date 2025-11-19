@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\DeliveryTask;
 use App\Models\Donation;
 use App\Models\FoodRequest;
-use App\Models\DeliveryTask;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -18,7 +18,14 @@ class MatchingService
     }
 
     /**
-     * Find and match suitable requests for a donation
+     * Find and match suitable requests for a donation using simple rule-based matching.
+     *
+     * Matching rules (all must be satisfied):
+     * 1. Exact food type match
+     * 2. Sufficient quantity available
+     * 3. Exact location match
+     *
+     * Tie-breaking: First-come-first-served (oldest request first)
      */
     public function matchDonation(Donation $donation): ?FoodRequest
     {
@@ -30,36 +37,43 @@ class MatchingService
             return null;
         }
 
-        // Get all pending requests
-        $requests = FoodRequest::where('status', 'pending')->get();
-
-        if ($requests->isEmpty()) {
+        // Get donor location
+        $donor = User::find($donation->donor_id);
+        if (! $donor || ! $donor->location) {
             return null;
         }
 
-        // Score each request
-        $scoredRequests = $requests->map(function ($request) use ($donation) {
-            return [
-                'request' => $request,
-                'score' => $this->calculateMatchScore($donation, $request),
-            ];
-        })->filter(function ($item) {
-            return $item['score'] > 0; // Only keep matches with positive scores
-        })->sortByDesc('score');
+        // Find matching requests using three conditions
+        $matchingRequest = FoodRequest::where('status', 'pending')
+            // Condition 1: Exact food type match
+            ->where('food_type', $donation->food_type)
+            // Condition 2: Sufficient quantity (donation can fulfill request)
+            ->where('quantity', '<=', $donation->remaining_quantity ?? $donation->quantity)
+            // Condition 3: Exact location match (join with users table)
+            ->whereHas('beneficiary', function ($query) use ($donor) {
+                $query->where('location', $donor->location);
+            })
+            // Tie-breaking: First-come-first-served
+            ->orderBy('created_at', 'asc')
+            ->first();
 
-        if ($scoredRequests->isEmpty()) {
+        if (! $matchingRequest) {
             return null;
         }
-
-        // Get the best match
-        $bestMatch = $scoredRequests->first()['request'];
 
         // Create the match
-        return $this->createMatch($donation, $bestMatch);
+        return $this->createMatch($donation, $matchingRequest);
     }
 
     /**
-     * Find and match suitable donations for a request
+     * Find and match suitable donations for a request using simple rule-based matching.
+     *
+     * Matching rules (all must be satisfied):
+     * 1. Exact food type match
+     * 2. Sufficient quantity available
+     * 3. Exact location match
+     *
+     * Tie-breaking: Earliest expiration date first (prioritize food that will expire soonest)
      */
     public function matchRequest(FoodRequest $request): ?Donation
     {
@@ -71,163 +85,34 @@ class MatchingService
             return null;
         }
 
-        // Get all pending donations
-        $donations = Donation::where('status', 'pending')->get();
-
-        if ($donations->isEmpty()) {
+        // Get beneficiary location
+        $beneficiary = User::find($request->beneficiary_id);
+        if (! $beneficiary || ! $beneficiary->location) {
             return null;
         }
 
-        // Score each donation
-        $scoredDonations = $donations->map(function ($donation) use ($request) {
-            return [
-                'donation' => $donation,
-                'score' => $this->calculateMatchScore($donation, $request),
-            ];
-        })->filter(function ($item) {
-            return $item['score'] > 0; // Only keep matches with positive scores
-        })->sortByDesc('score');
+        // Find matching donations using three conditions
+        $matchingDonation = Donation::where('status', 'pending')
+            // Condition 1: Exact food type match
+            ->where('food_type', $request->food_type)
+            // Condition 2: Sufficient quantity (donation can fulfill request)
+            ->whereRaw('COALESCE(remaining_quantity, quantity) >= ?', [$request->quantity])
+            // Condition 3: Exact location match (join with users table)
+            ->whereHas('donor', function ($query) use ($beneficiary) {
+                $query->where('location', $beneficiary->location);
+            })
+            // Tie-breaking: Earliest expiration date first
+            ->orderBy('expiration_date', 'asc')
+            ->first();
 
-        if ($scoredDonations->isEmpty()) {
+        if (! $matchingDonation) {
             return null;
         }
-
-        // Get the best match
-        $bestMatch = $scoredDonations->first()['donation'];
 
         // Create the match
-        $this->createMatch($bestMatch, $request);
-        
-        return $bestMatch;
-    }
+        $this->createMatch($matchingDonation, $request);
 
-    /**
-     * Calculate match score between donation and request
-     * Higher score = better match
-     */
-    protected function calculateMatchScore(Donation $donation, FoodRequest $request): float
-    {
-        $score = 0;
-
-        // 1. Food Type Similarity (40 points max)
-        $foodTypeScore = $this->calculateFoodTypeSimilarity($donation->food_type, $request->food_type);
-        $score += $foodTypeScore * 40;
-
-        // 2. Quantity Match (30 points max) — use remaining_quantity
-        if (isset($donation->remaining_quantity) && $donation->remaining_quantity >= $request->quantity) {
-            $quantityRatio = $request->quantity / max(1, $donation->remaining_quantity);
-            // Perfect match is when request takes 50-100% of donation
-            if ($quantityRatio >= 0.5) {
-                $score += 30;
-            } else {
-                $score += $quantityRatio * 60; // Scale down for smaller ratios
-            }
-        } else {
-            // Donation has less than needed, but could be partial match
-            $available = isset($donation->remaining_quantity) ? $donation->remaining_quantity : $donation->quantity;
-            $score += (max(0, $available) / max(1, $request->quantity)) * 15;
-        }
-
-        // 3. Location Proximity (30 points max)
-        $donor = User::find($donation->donor_id);
-        $beneficiary = User::find($request->beneficiary_id);
-        
-        if ($donor && $beneficiary && $donor->location && $beneficiary->location) {
-            $locationScore = $this->calculateLocationSimilarity($donor->location, $beneficiary->location);
-            $score += $locationScore * 30;
-        }
-
-        // 4. Freshness (up to 30 points total: 20 for expiration, 10 for pickup proximity)
-        $freshness = 0;
-        if ($donation->expiration_date) {
-            $days = now()->diffInDays($donation->expiration_date, false);
-            if ($days >= 0) {
-                $freshness += max(0, 20 - min(20, $days));
-            }
-        }
-        if ($donation->pickup_time) {
-            $mins = abs(now()->diffInMinutes($donation->pickup_time));
-            $freshness += max(0, 10 - min(10, intdiv($mins, 30)));
-        }
-
-        return $score + $freshness;
-    }
-
-    /**
-     * Calculate similarity between food types
-     * Since food types are now enums, we do exact matching with some category grouping
-     */
-    protected function calculateFoodTypeSimilarity(string $type1, string $type2): float
-    {
-        // Exact match
-        if ($type1 === $type2) {
-            return 1.0;
-        }
-
-        // Category groups for partial matching
-        $categories = [
-            'prepared' => ['cooked'],
-            'fresh' => ['fresh', 'vegetables', 'fruits'],
-            'packaged' => ['canned', 'bread', 'grains'],
-            'protein' => ['meat', 'dairy'],
-        ];
-
-        // Find which category each type belongs to
-        $cat1 = null;
-        $cat2 = null;
-
-        foreach ($categories as $categoryName => $types) {
-            if (in_array($type1, $types, true)) {
-                $cat1 = $categoryName;
-            }
-            if (in_array($type2, $types, true)) {
-                $cat2 = $categoryName;
-            }
-        }
-
-        // If both are in the same category, give partial score
-        if ($cat1 && $cat1 === $cat2) {
-            return 0.7;
-        }
-
-        // No match
-        return 0;
-    }
-
-    /**
-     * Calculate location proximity using string matching
-     */
-    protected function calculateLocationSimilarity(string $loc1, string $loc2): float
-    {
-        $loc1 = mb_strtolower(trim($loc1));
-        $loc2 = mb_strtolower(trim($loc2));
-
-        // Exact match
-        if ($loc1 === $loc2) {
-            return 1.0;
-        }
-
-        // Split by common delimiters (comma and whitespace)
-        $parts1 = preg_split('/[,\s]+/', $loc1);
-        $parts2 = preg_split('/[,\s]+/', $loc2);
-
-        // Count matching parts
-        $matches = 0;
-        foreach ($parts1 as $part1) {
-            foreach ($parts2 as $part2) {
-                if ($part1 === $part2 && mb_strlen($part1) > 2) {
-                    $matches++;
-                    break;
-                }
-            }
-        }
-
-        $totalParts = max(count($parts1), count($parts2));
-        if ($totalParts === 0) {
-            return 0;
-        }
-
-        return $matches / $totalParts;
+        return $matchingDonation;
     }
 
     /**
@@ -315,11 +200,18 @@ class MatchingService
     }
 
     /**
-     * Find potential matching requests for a donation (without creating the match)
+     * Find potential matching requests for a donation (without creating the match).
+     * Uses the same three-condition rule-based matching.
      */
     public function findMatchingRequests(Donation $donation, int $limit = 10): \Illuminate\Support\Collection
     {
-        // Get pending or matched requests (show all potential matches)
+        // Get donor location
+        $donor = User::find($donation->donor_id);
+        if (! $donor || ! $donor->location) {
+            return collect();
+        }
+
+        // Get pending or matched requests that meet all three conditions
         $requests = FoodRequest::whereIn('status', ['pending', 'matched'])
             ->where(function ($query) use ($donation) {
                 // If request is matched, show it only if it's matched with this donation
@@ -329,59 +221,69 @@ class MatchingService
                             ->where('donation_id', $donation->id);
                     });
             })
+            // Condition 1: Exact food type match
+            ->where('food_type', $donation->food_type)
+            // Condition 2: Sufficient quantity
+            ->where('quantity', '<=', $donation->remaining_quantity ?? $donation->quantity)
+            // Condition 3: Exact location match
+            ->whereHas('beneficiary', function ($query) use ($donor) {
+                $query->where('location', $donor->location);
+            })
+            // Order by creation date (first-come-first-served)
+            ->orderBy('created_at', 'asc')
+            ->limit($limit)
             ->get();
 
-        if ($requests->isEmpty()) {
-            return collect();
-        }
-
-        // Score each request
-        $scoredRequests = $requests->map(function ($request) use ($donation) {
+        // Return in the same format as before for compatibility
+        return $requests->map(function ($request) {
             return [
                 'request' => $request,
-                'score' => $this->calculateMatchScore($donation, $request),
+                'score' => 100, // All matches are equal now (no scoring)
             ];
-        })->filter(function ($item) {
-            return $item['score'] > 0; // Only keep matches with positive scores
-        })->sortByDesc('score')
-            ->take($limit)
-            ->values();
-
-        return $scoredRequests;
+        });
     }
 
     /**
-     * Find potential matching donations for a request (without creating the match)
+     * Find potential matching donations for a request (without creating the match).
+     * Uses the same three-condition rule-based matching.
      */
     public function findMatchingDonations(FoodRequest $request, int $limit = 10): \Illuminate\Support\Collection
     {
-        // Get pending donations or the matched donation
+        // Get beneficiary location
+        $beneficiary = User::find($request->beneficiary_id);
+        if (! $beneficiary || ! $beneficiary->location) {
+            return collect();
+        }
+
+        // Get pending donations or the matched donation that meet all three conditions
         $donations = Donation::where(function ($query) use ($request) {
             $query->where('status', 'pending');
-            
+
             // Also include the matched donation if exists
             if ($request->donation_id) {
                 $query->orWhere('id', $request->donation_id);
             }
-        })->get();
+        })
+            // Condition 1: Exact food type match
+            ->where('food_type', $request->food_type)
+            // Condition 2: Sufficient quantity
+            ->whereRaw('COALESCE(remaining_quantity, quantity) >= ?', [$request->quantity])
+            // Condition 3: Exact location match
+            ->whereHas('donor', function ($query) use ($beneficiary) {
+                $query->where('location', $beneficiary->location);
+            })
+            // Order by expiration date (earliest expiring first)
+            ->orderBy('expiration_date', 'asc')
+            ->limit($limit)
+            ->get();
 
-        if ($donations->isEmpty()) {
-            return collect();
-        }
-
-        // Score each donation
-        $scoredDonations = $donations->map(function ($donation) use ($request) {
+        // Return in the same format as before for compatibility
+        return $donations->map(function ($donation) {
             return [
                 'donation' => $donation,
-                'score' => $this->calculateMatchScore($donation, $request),
+                'score' => 100, // All matches are equal now (no scoring)
             ];
-        })->filter(function ($item) {
-            return $item['score'] > 0; // Only keep matches with positive scores
-        })->sortByDesc('score')
-            ->take($limit)
-            ->values();
-
-        return $scoredDonations;
+        });
     }
 
     /**
@@ -392,10 +294,10 @@ class MatchingService
         $donor = User::find($donation->donor_id);
         $beneficiary = User::find($request->beneficiary_id);
 
-        if (!$donor || !$beneficiary) {
+        if (! $donor || ! $beneficiary) {
             return null;
         }
-        
+
         // Create delivery task without volunteer assignment
         $task = DeliveryTask::create([
             'volunteer_id' => null,
@@ -408,5 +310,3 @@ class MatchingService
         return $task;
     }
 }
-
-
