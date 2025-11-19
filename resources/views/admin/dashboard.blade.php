@@ -109,11 +109,11 @@
             </div>
             <span class="text-sm font-medium text-primary-900 group-hover:text-primary-800 text-center">Reports</span>
         </a>
-        <a href="{{ route('admin.reports.statistics') }}" class="flex flex-col items-center justify-center p-4 bg-primary-100 hover:bg-primary-300 rounded-lg transition-all duration-200 hover:shadow-md group min-h-[100px]">
+        <a href="{{ route('admin.reports.analytics') }}" class="flex flex-col items-center justify-center p-4 bg-primary-100 hover:bg-primary-300 rounded-lg transition-all duration-200 hover:shadow-md group min-h-[100px]">
             <div class="bg-primary-700 group-hover:bg-primary-800 rounded-full p-3 mb-2 transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center">
-                <i class="fa-solid fa-chart-bar fa-lg text-white"></i>
+                <i class="fa-solid fa-chart-line fa-lg text-white"></i>
             </div>
-            <span class="text-sm font-medium text-primary-900 group-hover:text-primary-800 text-center">Statistics</span>
+            <span class="text-sm font-medium text-primary-900 group-hover:text-primary-800 text-center">Analytics</span>
         </a>
         <a href="{{ route('admin.feedback') }}" class="flex flex-col items-center justify-center p-4 bg-primary-100 hover:bg-primary-300 rounded-lg transition-all duration-200 hover:shadow-md group min-h-[100px]">
             <div class="bg-primary-700 group-hover:bg-primary-800 rounded-full p-3 mb-2 transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center">
