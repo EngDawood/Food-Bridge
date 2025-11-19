@@ -23,3 +23,15 @@
     --color-surface: #FFFFFF;
     --color-surface-muted: #F7F9FC;
 }
+
+/* Responsive Images - Prevent Overflow */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Ensure video and iframe elements are responsive */
+video, iframe {
+    max-width: 100%;
+    height: auto;
+}
