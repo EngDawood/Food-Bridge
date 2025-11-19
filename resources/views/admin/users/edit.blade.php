@@ -29,7 +29,13 @@
 
     <div>
         <label class="block text-sm mb-1">Password <span class="text-gray-500 text-xs">(leave blank to keep current)</span></label>
-        <input type="password" name="password" class="border rounded w-full px-2 py-1" />
+        <div class="relative">
+            <input id="password" type="password" name="password" class="border rounded w-full px-2 py-1 pr-10" />
+            <button type="button" onclick="togglePassword('password')"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                <i class="fa-solid fa-eye" id="password-eye"></i>
+            </button>
+        </div>
         @error('password')<div class="text-red-700 text-sm">{{ $message }}</div>@enderror
     </div>
 
@@ -55,5 +61,22 @@
         <a class="px-4 py-2 border rounded" href="{{ route('admin.users') }}">Back</a>
     </div>
 </form>
+
+<script>
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const eye = document.getElementById(fieldId + '-eye');
+
+    if (field.type === 'password') {
+        field.type = 'text';
+        eye.classList.remove('fa-eye');
+        eye.classList.add('fa-eye-slash');
+    } else {
+        field.type = 'password';
+        eye.classList.remove('fa-eye-slash');
+        eye.classList.add('fa-eye');
+    }
+}
+</script>
 @endsection
 

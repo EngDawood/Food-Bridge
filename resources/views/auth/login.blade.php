@@ -37,7 +37,13 @@
         </div>
         <div class="mb-4">
             <label class="block mb-1"><i class="fa-solid fa-lock mr-1"></i>Password</label>
-            <input name="password" type="password" class="w-full border rounded px-3 py-2" required>
+            <div class="relative">
+                <input id="password" name="password" type="password" class="w-full border rounded px-3 py-2 pr-10" required>
+                <button type="button" onclick="togglePassword('password')"
+                        class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                    <i class="fa-solid fa-eye" id="password-eye"></i>
+                </button>
+            </div>
             @error('password')
                 <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
             @enderror
@@ -49,6 +55,23 @@
         <button class="bg-primary-700 hover:bg-primary-800 text-white px-4 py-2 rounded"><i class="fa-solid fa-right-to-bracket mr-1"></i>Sign in</button>
     </form>
 </div>
+
+<script>
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const eye = document.getElementById(fieldId + '-eye');
+
+    if (field.type === 'password') {
+        field.type = 'text';
+        eye.classList.remove('fa-eye');
+        eye.classList.add('fa-eye-slash');
+    } else {
+        field.type = 'password';
+        eye.classList.remove('fa-eye-slash');
+        eye.classList.add('fa-eye');
+    }
+}
+</script>
 @endsection
 
 
