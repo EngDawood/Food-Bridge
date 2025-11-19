@@ -211,11 +211,14 @@ class ReportService implements ReportServiceInterface
 
     public function getLocationStats(array $filters = []): Collection
     {
-        $query = Donation::query();
+        $query = Donation::query()
+            ->join('users', 'donations.donor_id', '=', 'users.id')
+            ->whereNotNull('users.location');
+
         $this->applyDateFilters($query, $filters);
 
-        return $query->select('location', DB::raw('count(*) as count'))
-            ->groupBy('location')
+        return $query->select('users.location', DB::raw('count(*) as count'))
+            ->groupBy('users.location')
             ->orderBy('count', 'desc')
             ->get();
     }
@@ -245,12 +248,15 @@ class ReportService implements ReportServiceInterface
 
     protected function applyDateFilters($query, array $filters): void
     {
+        // Get the table name from the query's model
+        $table = $query->getModel()->getTable();
+
         if (isset($filters['start_date']) && isset($filters['end_date'])) {
-            $query->whereBetween('created_at', [$filters['start_date'], $filters['end_date']]);
+            $query->whereBetween($table . '.created_at', [$filters['start_date'], $filters['end_date']]);
         } elseif (isset($filters['start_date'])) {
-            $query->where('created_at', '>=', $filters['start_date']);
+            $query->where($table . '.created_at', '>=', $filters['start_date']);
         } elseif (isset($filters['end_date'])) {
-            $query->where('created_at', '<=', $filters['end_date']);
+            $query->where($table . '.created_at', '<=', $filters['end_date']);
         }
 
         if (isset($filters['food_type'])) {
