@@ -260,20 +260,21 @@ class ReportService implements ReportServiceInterface
         }
 
         if (isset($filters['food_type'])) {
-            if (method_exists($query->getModel(), 'food_type')) {
-                $query->where('food_type', $filters['food_type']);
+            if (\Schema::hasColumn($table, 'food_type')) {
+                $query->where($table . '.food_type', $filters['food_type']);
             }
         }
 
         if (isset($filters['location'])) {
-            if (method_exists($query->getModel(), 'location')) {
-                $query->where('location', $filters['location']);
+            // Check if this is the users table or if we need to join
+            if (\Schema::hasColumn($table, 'location')) {
+                $query->where($table . '.location', $filters['location']);
             }
         }
 
         if (isset($filters['status'])) {
-            if (method_exists($query->getModel(), 'status')) {
-                $query->where('status', $filters['status']);
+            if (\Schema::hasColumn($table, 'status')) {
+                $query->where($table . '.status', $filters['status']);
             }
         }
     }

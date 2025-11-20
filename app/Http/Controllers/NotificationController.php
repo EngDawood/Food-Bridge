@@ -12,8 +12,12 @@ class NotificationController extends Controller
      */
     public function index()
     {
-        $notifications = auth()->user()
-            ->systemNotifications()
+        $user = auth()->user();
+        if (!$user) {
+            abort(401, 'Unauthorized');
+        }
+
+        $notifications = $user->systemNotifications()
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
@@ -25,8 +29,12 @@ class NotificationController extends Controller
      */
     public function getUnreadCount()
     {
-        $count = auth()->user()
-            ->systemNotifications()
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['count' => 0], 401);
+        }
+
+        $count = $user->systemNotifications()
             ->where('is_read', false)
             ->count();
 
@@ -38,8 +46,12 @@ class NotificationController extends Controller
      */
     public function getRecent()
     {
-        $notifications = auth()->user()
-            ->systemNotifications()
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['notifications' => []], 401);
+        }
+
+        $notifications = $user->systemNotifications()
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get()
@@ -61,8 +73,12 @@ class NotificationController extends Controller
      */
     public function markAsRead($id)
     {
-        $notification = auth()->user()
-            ->systemNotifications()
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'error' => 'Unauthorized'], 401);
+        }
+
+        $notification = $user->systemNotifications()
             ->findOrFail($id);
 
         $notification->update(['is_read' => true]);
@@ -75,8 +91,12 @@ class NotificationController extends Controller
      */
     public function markAllAsRead()
     {
-        auth()->user()
-            ->systemNotifications()
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'error' => 'Unauthorized'], 401);
+        }
+
+        $user->systemNotifications()
             ->where('is_read', false)
             ->update(['is_read' => true]);
 
@@ -88,8 +108,12 @@ class NotificationController extends Controller
      */
     public function destroy($id)
     {
-        $notification = auth()->user()
-            ->systemNotifications()
+        $user = auth()->user();
+        if (!$user) {
+            abort(401, 'Unauthorized');
+        }
+
+        $notification = $user->systemNotifications()
             ->findOrFail($id);
 
         $notification->delete();
