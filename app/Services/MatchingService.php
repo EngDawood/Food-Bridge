@@ -194,7 +194,7 @@ class MatchingService
 
     /**
      * Find potential matching requests for a donation (without creating the match).
-     * Uses the same three-condition rule-based matching.
+     * Uses flexible matching with scoring.
      */
     public function findMatchingRequests(Donation $donation, int $limit = 10): \Illuminate\Support\Collection
     {
@@ -204,8 +204,8 @@ class MatchingService
             return collect();
         }
 
-        // Get pending or matched requests that meet all three conditions
-        $requests = FoodRequest::whereIn('status', ['pending', 'matched'])
+        // Get all pending or matched requests
+        $potentialRequests = FoodRequest::whereIn('status', ['pending', 'matched'])
             ->where(function ($query) use ($donation) {
                 // If request is matched, show it only if it's matched with this donation
                 $query->where('status', 'pending')
@@ -214,31 +214,38 @@ class MatchingService
                             ->where('donation_id', $donation->id);
                     });
             })
-            // Condition 1: Exact food type match
-            ->where('food_type', $donation->food_type)
-            // Condition 2: Sufficient quantity
             ->where('quantity', '<=', $donation->remaining_quantity ?? $donation->quantity)
-            // Condition 3: Exact location match
-            ->whereHas('beneficiary', function ($query) use ($donor) {
-                $query->where('location', $donor->location);
-            })
-            // Order by creation date (first-come-first-served)
-            ->orderBy('created_at', 'asc')
-            ->limit($limit)
+            ->with('beneficiary')
             ->get();
 
-        // Return in the same format as before for compatibility
-        return $requests->map(function ($request) {
-            return [
-                'request' => $request,
-                'score' => 100, // All matches are equal now (no scoring)
-            ];
-        });
+        $minimumScore = config('matching.algorithm.minimum_score', 60);
+        $matches = collect();
+
+        // Score each request
+        foreach ($potentialRequests as $request) {
+            if (!$request->beneficiary) {
+                continue;
+            }
+
+            $score = $this->calculateMatchScore($donation, $request, $donor, $request->beneficiary);
+
+            if ($score >= $minimumScore) {
+                $matches->push([
+                    'request' => $request,
+                    'score' => $score,
+                ]);
+            }
+        }
+
+        // Sort by score descending, then by created_at ascending
+        return $matches->sortByDesc('score')
+            ->take($limit)
+            ->values();
     }
 
     /**
      * Find potential matching donations for a request (without creating the match).
-     * Uses the same three-condition rule-based matching.
+     * Uses flexible matching with scoring.
      */
     public function findMatchingDonations(FoodRequest $request, int $limit = 10): \Illuminate\Support\Collection
     {
@@ -248,8 +255,8 @@ class MatchingService
             return collect();
         }
 
-        // Get pending donations or the matched donation that meet all three conditions
-        $donations = Donation::where(function ($query) use ($request) {
+        // Get all pending donations or the matched donation
+        $potentialDonations = Donation::where(function ($query) use ($request) {
             $query->where('status', 'pending');
 
             // Also include the matched donation if exists
@@ -257,26 +264,33 @@ class MatchingService
                 $query->orWhere('id', $request->donation_id);
             }
         })
-            // Condition 1: Exact food type match
-            ->where('food_type', $request->food_type)
-            // Condition 2: Sufficient quantity
             ->whereRaw('COALESCE(remaining_quantity, quantity) >= ?', [$request->quantity])
-            // Condition 3: Exact location match
-            ->whereHas('donor', function ($query) use ($beneficiary) {
-                $query->where('location', $beneficiary->location);
-            })
-            // Order by expiration date (earliest expiring first)
-            ->orderBy('expiration_date', 'asc')
-            ->limit($limit)
+            ->with('donor')
             ->get();
 
-        // Return in the same format as before for compatibility
-        return $donations->map(function ($donation) {
-            return [
-                'donation' => $donation,
-                'score' => 100, // All matches are equal now (no scoring)
-            ];
-        });
+        $minimumScore = config('matching.algorithm.minimum_score', 60);
+        $matches = collect();
+
+        // Score each donation
+        foreach ($potentialDonations as $donation) {
+            if (!$donation->donor) {
+                continue;
+            }
+
+            $score = $this->calculateMatchScore($donation, $request, $donation->donor, $beneficiary);
+
+            if ($score >= $minimumScore) {
+                $matches->push([
+                    'donation' => $donation,
+                    'score' => $score,
+                ]);
+            }
+        }
+
+        // Sort by score descending
+        return $matches->sortByDesc('score')
+            ->take($limit)
+            ->values();
     }
 
     /**
