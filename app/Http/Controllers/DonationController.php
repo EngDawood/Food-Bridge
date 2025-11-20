@@ -34,11 +34,24 @@ class DonationController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'food_type' => ['required', 'string', 'in:' . implode(',', \App\Helpers\FoodTypes::values())],
+            'food_type' => ['required', 'string', 'in:' . implode(',', \App\Helpers\FoodTypes::getAllTypes())],
             'quantity' => ['required', 'integer', 'min:1'],
-            'expiration_date' => ['nullable', 'date'],
-            'pickup_time' => ['nullable', 'date'],
+            'expiration_date' => ['nullable', 'date', 'after:now'],
+            'pickup_time' => ['nullable', 'date', 'after:now'],
         ]);
+
+        // Duplicate detection
+        $duplicate = Donation::where('donor_id', Auth::id())
+            ->where('food_type', $validated['food_type'])
+            ->where('quantity', $validated['quantity'])
+            ->where('created_at', '>=', now()->subMinutes(5))
+            ->first();
+
+        if ($duplicate) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['error' => 'A similar donation was created recently. Please wait a moment before submitting again.']);
+        }
 
         $donation = Donation::create([
             'donor_id' => Auth::id(),
@@ -47,6 +60,7 @@ class DonationController extends Controller
             'expiration_date' => $validated['expiration_date'] ?? null,
             'pickup_time' => $validated['pickup_time'] ?? null,
             'status' => 'pending',
+            'remaining_quantity' => $validated['quantity'], // Initialize remaining_quantity
         ]);
 
         // Try to find a match automatically
@@ -74,10 +88,10 @@ class DonationController extends Controller
         $this->authorizeOwnership($donation);
 
         $validated = $request->validate([
-            'food_type' => ['required', 'string', 'in:' . implode(',', \App\Helpers\FoodTypes::values())],
+            'food_type' => ['required', 'string', 'in:' . implode(',', \App\Helpers\FoodTypes::getAllTypes())],
             'quantity' => ['required', 'integer', 'min:1'],
-            'expiration_date' => ['nullable', 'date'],
-            'pickup_time' => ['nullable', 'date'],
+            'expiration_date' => ['nullable', 'date', 'after:now'],
+            'pickup_time' => ['nullable', 'date', 'after:now'],
             'status' => ['nullable', 'in:pending,scheduled,delivered'],
         ]);
 
