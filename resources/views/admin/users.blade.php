@@ -3,22 +3,22 @@
 @section('content')
 <!-- Header Section -->
 <div class="mb-8">
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4 gap-4">
+    <div class="flex items-center justify-between mb-4">
         <div>
-            <h1 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2 flex items-center">
+            <h1 class="text-2xl font-bold text-gray-800 mb-2 flex items-center">
                 <i class="fa-solid fa-users text-primary-700 mr-3"></i>
                 User Management
             </h1>
-            <p class="text-gray-600 text-base">Manage and monitor all registered users in the system</p>
+            <p class="text-gray-600 text-sm">Manage and monitor all registered users in the system</p>
         </div>
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full lg:w-auto">
-            <a href="{{ route('admin.users.create') }}" class="flex items-center justify-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg min-h-[48px] font-medium text-base">
+        <div class="flex items-center gap-2">
+            <a href="{{ route('admin.users.create') }}" class="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
                 <i class="fa-solid fa-plus"></i>
-                <span>Create User</span>
+                <span class="hidden sm:inline">Create User</span>
             </a>
-            <a href="{{ route('admin.dashboard') }}" class="flex items-center justify-center gap-2 px-6 py-3 bg-primary-700 hover:bg-primary-800 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg min-h-[48px] font-medium text-base">
+            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 px-4 py-2 bg-primary-700 hover:bg-primary-800 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
                 <i class="fa-solid fa-gauge"></i>
-                <span>Dashboard</span>
+                <span class="hidden sm:inline">Dashboard</span>
             </a>
         </div>
     </div>
@@ -37,23 +37,23 @@
 @endif
 
 <!-- Search Section -->
-<div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6">
+<div class="bg-white rounded-xl shadow-lg p-6 mb-6">
     <form method="get" class="flex flex-col sm:flex-row gap-3">
         <div class="flex-1 relative">
             <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-            <input
-                type="text"
-                name="q"
-                value="{{ $q }}"
-                placeholder="Search by name, email, or role..."
-                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-base min-h-[48px]"
+            <input 
+                type="text" 
+                name="q" 
+                value="{{ $q }}" 
+                placeholder="Search by name, email, or role..." 
+                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
             />
         </div>
-        <button type="submit" class="px-6 py-3 bg-primary-700 hover:bg-primary-800 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg font-medium min-h-[48px] text-base">
+        <button type="submit" class="px-6 py-3 bg-primary-700 hover:bg-primary-800 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg font-medium">
             <i class="fa-solid fa-search mr-2"></i>Search
         </button>
         @if($q)
-        <a href="{{ route('admin.users') }}" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-all duration-200 font-medium flex items-center justify-center min-h-[48px] text-base">
+        <a href="{{ route('admin.users') }}" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-all duration-200 font-medium flex items-center justify-center">
             <i class="fa-solid fa-rotate mr-2"></i>Reset
         </a>
         @endif

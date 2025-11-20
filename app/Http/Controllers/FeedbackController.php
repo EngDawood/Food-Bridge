@@ -41,7 +41,7 @@ class FeedbackController extends Controller
             $validated['rating']
         );
 
-        return back()->with('status', 'Feedback submitted successfully');
+        return back()->with('status', 'تم إرسال التقييم بنجاح');
     }
 }
 

@@ -50,15 +50,11 @@ class DonationController extends Controller
         ]);
 
         // Try to find a match automatically
-        try {
-            $match = $this->matchingService->matchDonation($donation);
-            $message = $match
-                ? 'Donation added and matched with a beneficiary request'
-                : 'Donation added successfully';
-        } catch (\Exception $e) {
-            \Log::error("Auto-matching failed for donation {$donation->id}: " . $e->getMessage());
-            $message = 'Donation added successfully (auto-matching unavailable)';
-        }
+        $match = $this->matchingService->matchDonation($donation);
+
+        $message = $match 
+            ? 'Donation added and matched with a beneficiary request'
+            : 'Donation added successfully';
 
         return redirect()->route('donations.index')->with('status', $message);
     }
@@ -113,18 +109,10 @@ class DonationController extends Controller
         // Ensure request belongs to a beneficiary (no need to be same user) and is pending
         abort_unless($requestModel->status === 'pending', 422);
 
-        try {
-            $this->matchingService->manualMatch($donation, $requestModel);
-            return redirect()->route('donations.matches', $donation)
-                ->with('status', 'Donation matched with the selected request');
-        } catch (\RuntimeException $e) {
-            return redirect()->route('donations.matches', $donation)
-                ->withErrors(['error' => 'Failed to match: ' . $e->getMessage()]);
-        } catch (\Exception $e) {
-            \Log::error("Manual match failed for donation {$donation->id} and request {$requestModel->id}: " . $e->getMessage());
-            return redirect()->route('donations.matches', $donation)
-                ->withErrors(['error' => 'An error occurred while matching. Please try again.']);
-        }
+        $this->matchingService->manualMatch($donation, $requestModel);
+
+        return redirect()->route('donations.matches', $donation)
+            ->with('status', 'Donation matched with the selected request');
     }
 }
 

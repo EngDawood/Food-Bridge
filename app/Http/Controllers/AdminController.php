@@ -122,20 +122,9 @@ class AdminController extends Controller
 
     public function transactions()
     {
-        $donations = Donation::with('donor:id,name,email,location')
-            ->orderBy('id', 'desc')
-            ->limit(10)
-            ->get();
-
-        $requests = FoodRequest::with('beneficiary:id,name,email,location', 'donation')
-            ->orderBy('id', 'desc')
-            ->limit(10)
-            ->get();
-
-        $deliveries = DeliveryTask::with('volunteer:id,name,email', 'donation')
-            ->orderBy('id', 'desc')
-            ->limit(10)
-            ->get();
+        $donations = Donation::orderBy('id', 'desc')->limit(10)->get();
+        $requests = FoodRequest::orderBy('id', 'desc')->limit(10)->get();
+        $deliveries = DeliveryTask::orderBy('id', 'desc')->limit(10)->get();
 
         return view('admin.transactions', compact('donations', 'requests', 'deliveries'));
     }
@@ -146,43 +135,24 @@ class AdminController extends Controller
         return view('admin.reports.index', compact('reports'));
     }
 
-    public function statistics()
+    public function reportsCreate()
     {
-        // Total counts (all time)
-        $totalDonations = Donation::count();
-        $totalRequests = FoodRequest::count();
-        $totalMatches = FoodRequest::where('status', 'fulfilled')->count();
-        $totalDeliveries = DeliveryTask::where('status', 'completed')->count();
-        $totalDonors = User::where('role', 'donor')->count();
-        $totalBeneficiaries = User::where('role', 'beneficiary')->count();
-        $totalVolunteers = User::where('role', 'volunteer')->count();
-        $totalAdmins = User::where('role', 'admin')->count();
+        $admins = User::where('role', 'admin')->get(['id', 'name']);
+        return view('admin.reports.create', compact('admins'));
+    }
 
-        // This month's numbers
-        $startOfMonth = now()->startOfMonth();
-        $donationsThisMonth = Donation::where('created_at', '>=', $startOfMonth)->count();
-        $requestsThisMonth = FoodRequest::where('created_at', '>=', $startOfMonth)->count();
-        $matchesThisMonth = FoodRequest::where('status', 'fulfilled')
-            ->where('updated_at', '>=', $startOfMonth)
-            ->count();
-        $activeVolunteers = DeliveryTask::where('status', 'in_progress')
-            ->distinct('volunteer_id')
-            ->count('volunteer_id');
+    public function reportsStore(Request $request)
+    {
+        $data = $request->validate([
+            'admin_id' => ['required', 'exists:users,id'],
+            'title' => ['required', 'string', 'max:255'],
+            'content' => ['required', 'string'],
+        ]);
 
-        return view('admin.reports.statistics', compact(
-            'totalDonations',
-            'totalRequests',
-            'totalMatches',
-            'totalDeliveries',
-            'totalDonors',
-            'totalBeneficiaries',
-            'totalVolunteers',
-            'totalAdmins',
-            'donationsThisMonth',
-            'requestsThisMonth',
-            'matchesThisMonth',
-            'activeVolunteers'
-        ));
+        $data['created_at'] = now();
+        Report::create($data);
+
+        return redirect()->route('admin.reports.index')->with('status', 'Report created successfully');
     }
 
     public function feedbackIndex(Request $request)
@@ -216,25 +186,11 @@ class AdminController extends Controller
             'email' => ['required', 'email', 'exists:users,email'],
         ]);
 
-        try {
-            $user = User::where('email', $data['email'])->firstOrFail();
+        $user = User::where('email', $data['email'])->firstOrFail();
+        $user->role = 'admin';
+        $user->save();
 
-            if ($user->role === 'admin') {
-                return back()->withErrors(['email' => 'User is already an admin']);
-            }
-
-            $user->role = 'admin';
-            $user->save();
-
-            \Log::info("User {$user->id} ({$user->email}) promoted to admin by " . auth()->id());
-
-            return back()->with('status', 'User promoted to admin successfully');
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return back()->withErrors(['email' => 'User not found']);
-        } catch (\Exception $e) {
-            \Log::error("Failed to promote user: " . $e->getMessage());
-            return back()->withErrors(['error' => 'An error occurred while promoting the user. Please try again.']);
-        }
+        return back()->with('status', 'User promoted to admin successfully');
     }
 }
 

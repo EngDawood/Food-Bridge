@@ -51,13 +51,7 @@ class NotificationService
     public function notifyDeliveryStatusChange(DeliveryTask $task, string $oldStatus): void
     {
         $donation = $task->donation;
-
-        // Early return if donation doesn't exist
-        if (!$donation) {
-            \Log::warning("DeliveryTask {$task->id} has no associated donation");
-            return;
-        }
-
+        
         if ($task->status === 'in_progress') {
             // Notify donor that pickup is in progress
             SystemNotification::create([
@@ -99,15 +93,13 @@ class NotificationService
                 ]);
             }
 
-            // Notify volunteer only if assigned
-            if ($task->volunteer_id) {
-                SystemNotification::create([
-                    'user_id' => $task->volunteer_id,
-                    'message' => 'Thanks for completing the delivery task',
-                    'type' => 'update',
-                    'is_read' => false,
-                ]);
-            }
+            // Notify volunteer
+            SystemNotification::create([
+                'user_id' => $task->volunteer_id,
+                'message' => 'Thanks for completing the delivery task',
+                'type' => 'update',
+                'is_read' => false,
+            ]);
         }
     }
 
@@ -117,11 +109,10 @@ class NotificationService
     public function notifyFeedbackReceived(int $userId, int $fromUserId, int $rating): void
     {
         $fromUser = User::find($fromUserId);
-        $fromUserName = $fromUser ? $fromUser->name : 'A user';
-
+        
         SystemNotification::create([
             'user_id' => $userId,
-            'message' => "You received new feedback ({$rating}/5) from {$fromUserName}",
+            'message' => "You received new feedback ({$rating}/5) from {$fromUser->name}",
             'type' => 'update',
             'is_read' => false,
         ]);

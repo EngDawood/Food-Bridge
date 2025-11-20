@@ -10,16 +10,16 @@ class FoodTypes
     public static function all(): array
     {
         return [
-            'cooked' => 'Cooked Meal',
-            'fresh' => 'Fresh Food',
-            'vegetables' => 'Vegetables',
-            'fruits' => 'Fruits',
-            'canned' => 'Canned Food',
-            'bread' => 'Bread',
-            'dairy' => 'Dairy Products',
-            'meat' => 'Meat',
-            'grains' => 'Grains',
-            'other' => 'Other',
+            'cooked' => 'Cooked Meal / وجبة مطبوخة',
+            'fresh' => 'Fresh Food / طعام طازج',
+            'vegetables' => 'Vegetables / خضروات',
+            'fruits' => 'Fruits / فواكه',
+            'canned' => 'Canned Food / معلبات',
+            'bread' => 'Bread / خبز',
+            'dairy' => 'Dairy Products / منتجات ألبان',
+            'meat' => 'Meat / لحوم',
+            'grains' => 'Grains / حبوب',
+            'other' => 'Other / أخرى',
         ];
     }
 

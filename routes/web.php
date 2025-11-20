@@ -8,7 +8,6 @@ use App\Http\Controllers\DonationController;
 use App\Http\Controllers\FoodRequestController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\FeedbackController;
-use App\Http\Controllers\NotificationController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -28,20 +27,13 @@ Route::fallback(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [AuthController::class, 'showProfile'])->name('profile');
     Route::post('/profile', [AuthController::class, 'updateProfile'])->name('profile.update');
-
-    // Notifications
-    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
-    Route::get('/api/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('notifications.unreadCount');
-    Route::get('/api/notifications/recent', [NotificationController::class, 'getRecent'])->name('notifications.recent');
-    Route::post('/api/notifications/{id}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.markRead');
-    Route::post('/api/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllRead');
-    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
-
+    Route::view('/notifications', 'notifications')->name('notifications');
+    
     // User feedback submission
     Route::post('/feedback/submit', [FeedbackController::class, 'store'])->name('feedback.submit');
 });
 
-// Donor routes (protected by donor role)
+// Donor routes (محمية بدور المتبرع)
 Route::middleware(['auth', 'role:donor'])->group(function () {
     Route::get('/donations', [DonationController::class, 'index'])->name('donations.index');
     Route::get('/donations/create', [DonationController::class, 'create'])->name('donations.create');
@@ -53,7 +45,7 @@ Route::middleware(['auth', 'role:donor'])->group(function () {
     Route::post('/donations/{donation}/match/{requestModel}', [DonationController::class, 'matchWithRequest'])->name('donations.match.withRequest');
 });
 
-// Beneficiary routes (protected by beneficiary role)
+// Beneficiary routes (محمية بدور المستفيد)
 Route::middleware(['auth', 'role:beneficiary'])->group(function () {
     Route::get('/requests', [FoodRequestController::class, 'index'])->name('requests.index');
     Route::get('/requests/create', [FoodRequestController::class, 'create'])->name('requests.create');
@@ -65,7 +57,7 @@ Route::middleware(['auth', 'role:beneficiary'])->group(function () {
     Route::post('/requests/{requestModel}/match/{donation}', [FoodRequestController::class, 'matchWithDonation'])->name('requests.match.withDonation');
 });
 
-// Admin pages (protected by admin role)
+// Admin pages (محمية بدور المشرف)
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.users');
@@ -75,18 +67,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::put('/admin/users/{user}', [AdminController::class, 'usersUpdate'])->name('admin.users.update');
     Route::delete('/admin/users/{user}', [AdminController::class, 'usersDestroy'])->name('admin.users.destroy');
     Route::get('/admin/transactions', [AdminController::class, 'transactions'])->name('admin.transactions');
-
-    // Enhanced Reports System
-    Route::get('/admin/reports', [\App\Http\Controllers\Admin\ReportAdminController::class, 'index'])->name('admin.reports.index');
-    Route::get('/admin/reports/analytics', [\App\Http\Controllers\Admin\ReportAdminController::class, 'analytics'])->name('admin.reports.analytics');
-    Route::get('/admin/reports/{report}', [\App\Http\Controllers\Admin\ReportAdminController::class, 'show'])->name('admin.reports.show');
-    Route::delete('/admin/reports/{report}', [\App\Http\Controllers\Admin\ReportAdminController::class, 'destroy'])->name('admin.reports.destroy');
-    Route::post('/admin/reports/generate/daily', [\App\Http\Controllers\Admin\ReportAdminController::class, 'generateDaily'])->name('admin.reports.generate.daily');
-    Route::post('/admin/reports/generate/weekly', [\App\Http\Controllers\Admin\ReportAdminController::class, 'generateWeekly'])->name('admin.reports.generate.weekly');
-    Route::post('/admin/reports/generate/monthly', [\App\Http\Controllers\Admin\ReportAdminController::class, 'generateMonthly'])->name('admin.reports.generate.monthly');
-    Route::get('/admin/reports/export/pdf', [\App\Http\Controllers\Admin\ReportAdminController::class, 'exportPdf'])->name('admin.reports.export.pdf');
-    Route::get('/admin/reports/export/excel', [\App\Http\Controllers\Admin\ReportAdminController::class, 'exportExcel'])->name('admin.reports.export.excel');
-
+    Route::get('/admin/reports', [AdminController::class, 'reportsIndex'])->name('admin.reports.index');
+    Route::get('/admin/reports/create', [AdminController::class, 'reportsCreate'])->name('admin.reports.create');
+    Route::post('/admin/reports', [AdminController::class, 'reportsStore'])->name('admin.reports.store');
     Route::get('/admin/feedback', [AdminController::class, 'feedbackIndex'])->name('admin.feedback');
     Route::post('/admin/feedback', [AdminController::class, 'feedbackStore'])->name('admin.feedback.store');
     Route::post('/admin/promote', [AdminController::class, 'promoteUser'])->name('admin.promote');
@@ -112,7 +95,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::delete('/admin/deliveries/{task}', [\App\Http\Controllers\Admin\DeliveryTaskAdminController::class, 'destroy'])->name('admin.deliveries.destroy');
 });
 
-// Volunteer pages (protected by volunteer role)
+// Volunteer pages (محمية بدور المتطوع)
 Route::middleware(['auth', 'role:volunteer'])->group(function () {
     Route::get('/volunteer/available', [VolunteerController::class, 'available'])->name('volunteer.available');
     Route::get('/volunteer/tasks', [VolunteerController::class, 'myTasks'])->name('volunteer.tasks');

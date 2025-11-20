@@ -90,54 +90,48 @@
         <i class="fa-solid fa-bolt text-accent-500 mr-2"></i>
         Quick Actions
     </h2>
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3">
-        <a href="{{ route('admin.users') }}" class="flex flex-col items-center justify-center p-4 bg-primary-100 hover:bg-primary-300 rounded-lg transition-all duration-200 hover:shadow-md group min-h-[100px]">
-            <div class="bg-primary-700 group-hover:bg-primary-800 rounded-full p-3 mb-2 transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center">
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+        <a href="{{ route('admin.users') }}" class="flex flex-col items-center justify-center p-4 bg-primary-100 hover:bg-primary-300 rounded-lg transition-all duration-200 hover:shadow-md group">
+            <div class="bg-primary-700 group-hover:bg-primary-800 rounded-full p-3 mb-2 transition-colors">
                 <i class="fa-solid fa-users fa-lg text-white"></i>
             </div>
-            <span class="text-sm font-medium text-primary-900 group-hover:text-primary-800 text-center">Users</span>
+            <span class="text-sm font-medium text-primary-900 group-hover:text-primary-800">Users</span>
         </a>
-        <a href="{{ route('admin.transactions') }}" class="flex flex-col items-center justify-center p-4 bg-primary-100 hover:bg-primary-300 rounded-lg transition-all duration-200 hover:shadow-md group min-h-[100px]">
-            <div class="bg-primary-700 group-hover:bg-primary-800 rounded-full p-3 mb-2 transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center">
+        <a href="{{ route('admin.transactions') }}" class="flex flex-col items-center justify-center p-4 bg-primary-100 hover:bg-primary-300 rounded-lg transition-all duration-200 hover:shadow-md group">
+            <div class="bg-primary-700 group-hover:bg-primary-800 rounded-full p-3 mb-2 transition-colors">
                 <i class="fa-solid fa-exchange-alt fa-lg text-white"></i>
             </div>
-            <span class="text-sm font-medium text-primary-900 group-hover:text-primary-800 text-center">Transactions</span>
+            <span class="text-sm font-medium text-primary-900 group-hover:text-primary-800">Transactions</span>
         </a>
-        <a href="{{ route('admin.reports.index') }}" class="flex flex-col items-center justify-center p-4 bg-primary-100 hover:bg-primary-300 rounded-lg transition-all duration-200 hover:shadow-md group min-h-[100px]">
-            <div class="bg-primary-700 group-hover:bg-primary-800 rounded-full p-3 mb-2 transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center">
+        <a href="{{ route('admin.reports.index') }}" class="flex flex-col items-center justify-center p-4 bg-primary-100 hover:bg-primary-300 rounded-lg transition-all duration-200 hover:shadow-md group">
+            <div class="bg-primary-700 group-hover:bg-primary-800 rounded-full p-3 mb-2 transition-colors">
                 <i class="fa-solid fa-file-alt fa-lg text-white"></i>
             </div>
-            <span class="text-sm font-medium text-primary-900 group-hover:text-primary-800 text-center">Reports</span>
+            <span class="text-sm font-medium text-primary-900 group-hover:text-primary-800">Reports</span>
         </a>
-        <a href="{{ route('admin.reports.analytics') }}" class="flex flex-col items-center justify-center p-4 bg-primary-100 hover:bg-primary-300 rounded-lg transition-all duration-200 hover:shadow-md group min-h-[100px]">
-            <div class="bg-primary-700 group-hover:bg-primary-800 rounded-full p-3 mb-2 transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center">
-                <i class="fa-solid fa-chart-line fa-lg text-white"></i>
-            </div>
-            <span class="text-sm font-medium text-primary-900 group-hover:text-primary-800 text-center">Analytics</span>
-        </a>
-        <a href="{{ route('admin.feedback') }}" class="flex flex-col items-center justify-center p-4 bg-primary-100 hover:bg-primary-300 rounded-lg transition-all duration-200 hover:shadow-md group min-h-[100px]">
-            <div class="bg-primary-700 group-hover:bg-primary-800 rounded-full p-3 mb-2 transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center">
+        <a href="{{ route('admin.feedback') }}" class="flex flex-col items-center justify-center p-4 bg-primary-100 hover:bg-primary-300 rounded-lg transition-all duration-200 hover:shadow-md group">
+            <div class="bg-primary-700 group-hover:bg-primary-800 rounded-full p-3 mb-2 transition-colors">
                 <i class="fa-solid fa-comments fa-lg text-white"></i>
             </div>
-            <span class="text-sm font-medium text-primary-900 group-hover:text-primary-800 text-center">Feedback</span>
+            <span class="text-sm font-medium text-primary-900 group-hover:text-primary-800">Feedback</span>
         </a>
-        <a href="{{ route('admin.donations.index') }}" class="flex flex-col items-center justify-center p-4 bg-primary-100 hover:bg-primary-300 rounded-lg transition-all duration-200 hover:shadow-md group min-h-[100px]">
-            <div class="bg-primary-700 group-hover:bg-primary-800 rounded-full p-3 mb-2 transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center">
+        <a href="{{ route('admin.donations.index') }}" class="flex flex-col items-center justify-center p-4 bg-primary-100 hover:bg-primary-300 rounded-lg transition-all duration-200 hover:shadow-md group">
+            <div class="bg-primary-700 group-hover:bg-primary-800 rounded-full p-3 mb-2 transition-colors">
                 <i class="fa-solid fa-hand-holding-heart fa-lg text-white"></i>
             </div>
-            <span class="text-sm font-medium text-primary-900 group-hover:text-primary-800 text-center">Donations</span>
+            <span class="text-sm font-medium text-primary-900 group-hover:text-primary-800">Donations</span>
         </a>
-        <a href="{{ route('admin.requests.index') }}" class="flex flex-col items-center justify-center p-4 bg-primary-100 hover:bg-primary-300 rounded-lg transition-all duration-200 hover:shadow-md group min-h-[100px]">
-            <div class="bg-primary-700 group-hover:bg-primary-800 rounded-full p-3 mb-2 transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center">
+        <a href="{{ route('admin.requests.index') }}" class="flex flex-col items-center justify-center p-4 bg-primary-100 hover:bg-primary-300 rounded-lg transition-all duration-200 hover:shadow-md group">
+            <div class="bg-primary-700 group-hover:bg-primary-800 rounded-full p-3 mb-2 transition-colors">
                 <i class="fa-solid fa-clipboard-list fa-lg text-white"></i>
             </div>
-            <span class="text-sm font-medium text-primary-900 group-hover:text-primary-800 text-center">Requests</span>
+            <span class="text-sm font-medium text-primary-900 group-hover:text-primary-800">Requests</span>
         </a>
-        <a href="{{ route('admin.deliveries.index') }}" class="flex flex-col items-center justify-center p-4 bg-primary-100 hover:bg-primary-300 rounded-lg transition-all duration-200 hover:shadow-md group min-h-[100px]">
-            <div class="bg-primary-700 group-hover:bg-primary-800 rounded-full p-3 mb-2 transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center">
+        <a href="{{ route('admin.deliveries.index') }}" class="flex flex-col items-center justify-center p-4 bg-primary-100 hover:bg-primary-300 rounded-lg transition-all duration-200 hover:shadow-md group">
+            <div class="bg-primary-700 group-hover:bg-primary-800 rounded-full p-3 mb-2 transition-colors">
                 <i class="fa-solid fa-truck fa-lg text-white"></i>
             </div>
-            <span class="text-sm font-medium text-primary-900 group-hover:text-primary-800 text-center">Deliveries</span>
+            <span class="text-sm font-medium text-primary-900 group-hover:text-primary-800">Deliveries</span>
         </a>
     </div>
 </div>
