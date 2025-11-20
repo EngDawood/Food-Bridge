@@ -79,8 +79,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     // Enhanced Reports System
     Route::get('/admin/reports', [\App\Http\Controllers\Admin\ReportAdminController::class, 'index'])->name('admin.reports.index');
     Route::get('/admin/reports/analytics', [\App\Http\Controllers\Admin\ReportAdminController::class, 'analytics'])->name('admin.reports.analytics');
-    Route::get('/admin/reports/create', [\App\Http\Controllers\Admin\ReportAdminController::class, 'create'])->name('admin.reports.create');
-    Route::post('/admin/reports', [\App\Http\Controllers\Admin\ReportAdminController::class, 'store'])->name('admin.reports.store');
     Route::get('/admin/reports/{report}', [\App\Http\Controllers\Admin\ReportAdminController::class, 'show'])->name('admin.reports.show');
     Route::delete('/admin/reports/{report}', [\App\Http\Controllers\Admin\ReportAdminController::class, 'destroy'])->name('admin.reports.destroy');
     Route::post('/admin/reports/generate/daily', [\App\Http\Controllers\Admin\ReportAdminController::class, 'generateDaily'])->name('admin.reports.generate.daily');

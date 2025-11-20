@@ -3,14 +3,9 @@
 @section('content')
 <div class="flex items-center justify-between mb-4">
     <h1 class="text-xl font-bold"><i class="fa-solid fa-file-alt mr-2"></i>Reports</h1>
-    <div class="flex gap-2">
-        <a href="{{ route('admin.reports.analytics') }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-            <i class="fa-solid fa-chart-line mr-1"></i>Analytics Dashboard
-        </a>
-        <a href="{{ route('admin.reports.create') }}" class="bg-[#F89A3C] text-white px-4 py-2 rounded hover:bg-orange-600">
-            <i class="fa-solid fa-plus mr-1"></i>Create Manual Report
-        </a>
-    </div>
+    <a href="{{ route('admin.reports.analytics') }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        <i class="fa-solid fa-chart-line mr-1"></i>Analytics Dashboard
+    </a>
 </div>
 
 @if(session('success'))

@@ -135,26 +135,6 @@ class AdminController extends Controller
         return view('admin.reports.index', compact('reports'));
     }
 
-    public function reportsCreate()
-    {
-        $admins = User::where('role', 'admin')->get(['id', 'name']);
-        return view('admin.reports.create', compact('admins'));
-    }
-
-    public function reportsStore(Request $request)
-    {
-        $data = $request->validate([
-            'admin_id' => ['required', 'exists:users,id'],
-            'title' => ['required', 'string', 'max:255'],
-            'content' => ['required', 'string'],
-        ]);
-
-        $data['created_at'] = now();
-        Report::create($data);
-
-        return redirect()->route('admin.reports.index')->with('status', 'Report created successfully');
-    }
-
     public function statistics()
     {
         // Total counts (all time)

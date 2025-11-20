@@ -46,28 +46,6 @@ class ReportAdminController extends Controller
         return view('admin.reports.analytics', compact('analyticsData', 'filters'));
     }
 
-    public function create()
-    {
-        return view('admin.reports.create');
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-        ]);
-
-        $report = $this->reportService->generate(
-            auth()->id(),
-            $request->title,
-            $request->content
-        );
-
-        return redirect()->route('admin.reports.show', $report)
-            ->with('success', 'Report created successfully!');
-    }
-
     public function show(Report $report)
     {
         $report->load('admin');
