@@ -26,7 +26,30 @@
         @else
             <div class="space-y-3">
                 @foreach($notifications as $notification)
-                    <div class="border rounded-lg p-4 transition-colors {{ $notification->is_read ? 'bg-white' : 'bg-blue-50 border-blue-200' }}">
+                    @php
+                        // Determine action URL based on notification type and user role
+                        $actionUrl = null;
+                        if ($notification->type === 'match') {
+                            if (auth()->user()->role === 'donor') {
+                                $actionUrl = route('donations.index');
+                            } elseif (auth()->user()->role === 'beneficiary') {
+                                $actionUrl = route('requests.index');
+                            }
+                        } elseif ($notification->type === 'alert' && auth()->user()->role === 'volunteer') {
+                            $actionUrl = route('volunteer.tasks');
+                        } elseif ($notification->type === 'update' || $notification->type === 'delivery') {
+                            if (auth()->user()->role === 'donor') {
+                                $actionUrl = route('donations.index');
+                            } elseif (auth()->user()->role === 'beneficiary') {
+                                $actionUrl = route('requests.index');
+                            } elseif (auth()->user()->role === 'volunteer') {
+                                $actionUrl = route('volunteer.tasks');
+                            }
+                        }
+                    @endphp
+
+                    <div class="border rounded-lg p-4 transition-colors {{ $notification->is_read ? 'bg-white' : 'bg-blue-50 border-blue-200' }} {{ $actionUrl ? 'hover:shadow-md cursor-pointer' : '' }}"
+                         @if($actionUrl) onclick="window.location.href='{{ $actionUrl }}'" @endif>
                         <div class="flex items-start justify-between gap-4">
                             <div class="flex items-start gap-3 flex-1">
                                 <div class="mt-1">
@@ -47,9 +70,14 @@
                                     <p class="text-xs text-gray-500 mt-1">
                                         {{ $notification->created_at->diffForHumans() }}
                                     </p>
+                                    @if($actionUrl)
+                                        <p class="text-xs text-primary-600 mt-1 font-medium">
+                                            <i class="fa-solid fa-arrow-right mr-1"></i>Click to view
+                                        </p>
+                                    @endif
                                 </div>
                             </div>
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2" onclick="event.stopPropagation()">
                                 @if(!$notification->is_read)
                                     <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
                                 @endif
