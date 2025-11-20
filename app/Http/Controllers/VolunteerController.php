@@ -115,10 +115,25 @@ class VolunteerController extends Controller
             abort(403);
         }
 
-        $task->update(['volunteer_id' => Auth::id()]);
+        // Use database-level atomic update to prevent race condition
+        $updated = DeliveryTask::where('id', $task->id)
+            ->whereNull('volunteer_id')
+            ->where('status', 'assigned')
+            ->update(['volunteer_id' => Auth::id()]);
+
+        if (!$updated) {
+            return back()->withErrors(['error' => 'This task has already been claimed by another volunteer']);
+        }
+
+        // Refresh the task model
+        $task->refresh();
 
         // Optional: notify stakeholders about assignment change
-        $this->notificationService->notifyDeliveryStatusChange($task, 'assigned');
+        try {
+            $this->notificationService->notifyDeliveryStatusChange($task, 'assigned');
+        } catch (\Exception $e) {
+            \Log::error("Failed to send claim notification: " . $e->getMessage());
+        }
 
         return back()->with('status', 'Task claimed successfully');
     }

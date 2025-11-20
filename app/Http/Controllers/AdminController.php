@@ -122,9 +122,20 @@ class AdminController extends Controller
 
     public function transactions()
     {
-        $donations = Donation::orderBy('id', 'desc')->limit(10)->get();
-        $requests = FoodRequest::orderBy('id', 'desc')->limit(10)->get();
-        $deliveries = DeliveryTask::orderBy('id', 'desc')->limit(10)->get();
+        $donations = Donation::with('donor:id,name,email,location')
+            ->orderBy('id', 'desc')
+            ->limit(10)
+            ->get();
+
+        $requests = FoodRequest::with('beneficiary:id,name,email,location', 'donation')
+            ->orderBy('id', 'desc')
+            ->limit(10)
+            ->get();
+
+        $deliveries = DeliveryTask::with('volunteer:id,name,email', 'donation')
+            ->orderBy('id', 'desc')
+            ->limit(10)
+            ->get();
 
         return view('admin.transactions', compact('donations', 'requests', 'deliveries'));
     }
@@ -205,11 +216,25 @@ class AdminController extends Controller
             'email' => ['required', 'email', 'exists:users,email'],
         ]);
 
-        $user = User::where('email', $data['email'])->firstOrFail();
-        $user->role = 'admin';
-        $user->save();
+        try {
+            $user = User::where('email', $data['email'])->firstOrFail();
 
-        return back()->with('status', 'User promoted to admin successfully');
+            if ($user->role === 'admin') {
+                return back()->withErrors(['email' => 'User is already an admin']);
+            }
+
+            $user->role = 'admin';
+            $user->save();
+
+            \Log::info("User {$user->id} ({$user->email}) promoted to admin by " . auth()->id());
+
+            return back()->with('status', 'User promoted to admin successfully');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return back()->withErrors(['email' => 'User not found']);
+        } catch (\Exception $e) {
+            \Log::error("Failed to promote user: " . $e->getMessage());
+            return back()->withErrors(['error' => 'An error occurred while promoting the user. Please try again.']);
+        }
     }
 }
 

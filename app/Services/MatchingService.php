@@ -34,12 +34,19 @@ class MatchingService
 
         // Only match pending donations
         if ($donation->status !== 'pending') {
+            \Log::info("Cannot match donation {$donation->id}: status is '{$donation->status}', expected 'pending'");
             return null;
         }
 
         // Get donor location
         $donor = User::find($donation->donor_id);
-        if (! $donor || ! $donor->location) {
+        if (!$donor) {
+            \Log::error("Donor not found for donation {$donation->id}");
+            return null;
+        }
+
+        if (!$donor->location) {
+            \Log::warning("Donor {$donor->id} has no location set for donation {$donation->id}");
             return null;
         }
 
@@ -82,12 +89,19 @@ class MatchingService
 
         // Only match pending requests
         if ($request->status !== 'pending') {
+            \Log::info("Cannot match request {$request->id}: status is '{$request->status}', expected 'pending'");
             return null;
         }
 
         // Get beneficiary location
         $beneficiary = User::find($request->beneficiary_id);
-        if (! $beneficiary || ! $beneficiary->location) {
+        if (!$beneficiary) {
+            \Log::error("Beneficiary not found for request {$request->id}");
+            return null;
+        }
+
+        if (!$beneficiary->location) {
+            \Log::warning("Beneficiary {$beneficiary->id} has no location set for request {$request->id}");
             return null;
         }
 
@@ -120,31 +134,48 @@ class MatchingService
      */
     protected function createMatch(Donation $donation, FoodRequest $request): FoodRequest
     {
-        DB::transaction(function () use ($donation, $request) {
-            // Ensure sufficient remaining quantity
-            $available = $donation->remaining_quantity ?? $donation->quantity;
-            if ($available < $request->quantity) {
-                throw new \RuntimeException('Insufficient remaining quantity');
-            }
+        try {
+            DB::transaction(function () use ($donation, $request) {
+                // Ensure sufficient remaining quantity
+                $available = $donation->remaining_quantity ?? $donation->quantity;
+                if ($available < $request->quantity) {
+                    throw new \RuntimeException('Insufficient remaining quantity');
+                }
 
-            // Decrement remaining quantity and schedule donation
-            $donation->remaining_quantity = $available - $request->quantity;
-            $donation->status = 'scheduled';
-            $donation->save();
+                // Decrement remaining quantity and schedule donation
+                $donation->remaining_quantity = $available - $request->quantity;
+                $donation->status = 'scheduled';
+                $donation->save();
 
-            // Update request with donation link
-            $request->update([
-                'donation_id' => $donation->id,
-                'status' => 'matched',
-                'matched_at' => now(),
-            ]);
+                // Update request with donation link
+                $request->update([
+                    'donation_id' => $donation->id,
+                    'status' => 'matched',
+                    'matched_at' => now(),
+                ]);
 
-            // Send notifications
-            $this->notificationService->notifyMatch($donation, $request);
+                // Send notifications (non-critical, log if fails)
+                try {
+                    $this->notificationService->notifyMatch($donation, $request);
+                } catch (\Exception $e) {
+                    \Log::error("Failed to send match notifications: " . $e->getMessage());
+                }
 
-            // Create delivery task
-            $this->createDeliveryTask($donation, $request);
-        });
+                // Create delivery task
+                $task = $this->createDeliveryTask($donation, $request);
+                if (!$task) {
+                    \Log::warning("Failed to create delivery task for donation {$donation->id} and request {$request->id}");
+                }
+            });
+
+            \Log::info("Successfully created match between donation {$donation->id} and request {$request->id}");
+        } catch (\RuntimeException $e) {
+            \Log::error("Match creation failed: " . $e->getMessage());
+            throw $e;
+        } catch (\Exception $e) {
+            \Log::error("Unexpected error in createMatch: " . $e->getMessage());
+            throw new \RuntimeException("Failed to create match: " . $e->getMessage());
+        }
 
         return $request;
     }
@@ -165,7 +196,8 @@ class MatchingService
      */
     private function releaseStaleMatches(): void
     {
-        $stale = FoodRequest::where('status', 'matched')
+        $stale = FoodRequest::with('donation')  // Eager load to prevent N+1 queries
+            ->where('status', 'matched')
             ->whereNotNull('matched_at')
             ->where('matched_at', '<=', now()->subHours(3))
             ->get();
@@ -189,6 +221,10 @@ class MatchingService
                 $donation->remaining_quantity = ($donation->remaining_quantity ?? 0) + $request->quantity;
                 $donation->status = 'pending';
                 $donation->save();
+
+                \Log::info("Released stale match: Donation {$donation->id} and Request {$request->id}");
+            } else {
+                \Log::warning("Request {$request->id} is matched but has no associated donation");
             }
 
             $request->update([
@@ -294,7 +330,13 @@ class MatchingService
         $donor = User::find($donation->donor_id);
         $beneficiary = User::find($request->beneficiary_id);
 
-        if (! $donor || ! $beneficiary) {
+        if (!$donor) {
+            \Log::error("Cannot create delivery task: donor not found for donation {$donation->id}");
+            return null;
+        }
+
+        if (!$beneficiary) {
+            \Log::error("Cannot create delivery task: beneficiary not found for request {$request->id}");
             return null;
         }
 
@@ -306,6 +348,8 @@ class MatchingService
             'dropoff_location' => $beneficiary->location ?? 'Not specified',
             'status' => 'assigned',
         ]);
+
+        \Log::info("Created delivery task {$task->id} for donation {$donation->id} and request {$request->id}");
 
         return $task;
     }
