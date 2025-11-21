@@ -46,5 +46,46 @@ class FoodTypes
     {
         return self::all()[$type] ?? $type;
     }
+
+    /**
+     * Get the category for a given food type
+     */
+    public static function getCategory(string $foodType): ?string
+    {
+        $categories = config('matching.food_type.categories', []);
+
+        foreach ($categories as $category => $types) {
+            if (in_array($foodType, $types, true)) {
+                return $category;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Check if two food types are in the same category
+     */
+    public static function areSameCategory(string $type1, string $type2): bool
+    {
+        $category1 = self::getCategory($type1);
+        $category2 = self::getCategory($type2);
+
+        return $category1 !== null && $category1 === $category2;
+    }
+
+    /**
+     * Get all food types in the same category
+     */
+    public static function getTypesInCategory(string $foodType): array
+    {
+        $category = self::getCategory($foodType);
+
+        if ($category === null) {
+            return [$foodType];
+        }
+
+        return config("matching.food_type.categories.{$category}", [$foodType]);
+    }
 }
 
