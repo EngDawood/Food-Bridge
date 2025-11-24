@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
         $admin = User::create([
             'name' => 'Admin User',
             'email' => 'admin@foodbridge.sa',
-            'password' => Hash::make('yyy'),
+            'password' => Hash::make('password'),
             'role' => 'admin',
             'location' => 'Al-Jouf, Sakaka',
         ]);
