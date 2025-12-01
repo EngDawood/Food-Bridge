@@ -2,20 +2,24 @@
 
 @section('content')
 <div class="max-w-4xl mx-auto">
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-bold text-gray-900">
-                <i class="fa-solid fa-bell mr-2 text-primary-600"></i>Notifications
-            </h1>
+    <x-page-header
+        title="Notifications"
+        subtitle="Stay updated with your latest activities"
+        icon="fa-solid fa-bell"
+    >
+        <x-slot name="action">
             @if($notifications->where('is_read', false)->count() > 0)
                 <form action="{{ route('notifications.markAllRead') }}" method="POST">
                     @csrf
-                    <button type="submit" class="text-sm text-primary-600 hover:text-primary-700 font-medium">
-                        Mark all as read
-                    </button>
+                    <x-button type="submit" variant="ghost" size="sm">
+                        <i class="fa-solid fa-check-double mr-1"></i>Mark all as read
+                    </x-button>
                 </form>
             @endif
-        </div>
+        </x-slot>
+    </x-page-header>
+
+    <x-card>
 
         @if($notifications->isEmpty())
             <div class="text-center py-12">
@@ -100,9 +104,9 @@
                                 <form action="{{ route('notifications.destroy', $notification->id) }}" method="POST" class="inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="text-gray-400 hover:text-red-500 transition-colors" onclick="return confirm('Delete this notification?')">
+                                    <x-button type="submit" variant="ghost" size="sm" class="text-gray-400 hover:text-red-500" onclick="return confirm('Delete this notification?')">
                                         <i class="fa-solid fa-trash text-sm"></i>
-                                    </button>
+                                    </x-button>
                                 </form>
                             </div>
                         </div>
@@ -114,7 +118,7 @@
                 {{ $notifications->links() }}
             </div>
         @endif
-    </div>
+    </x-card>
 </div>
 @endsection
 

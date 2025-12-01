@@ -1,59 +1,94 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="flex items-center justify-between mb-4">
-    <h1 class="text-xl font-semibold">Delivery tasks management</h1>
-    <div class="flex gap-2">
-        <form method="get" class="flex gap-2">
-            <input type="text" name="q" value="{{ $q }}" placeholder="Search..." class="border rounded px-2 py-1" />
-            <button class="bg-primary-700 hover:bg-primary-800 text-white px-3 py-1 rounded">Search</button>
-        </form>
-        <a href="{{ route('admin.deliveries.create') }}" class="bg-green-700 hover:bg-green-800 text-white px-3 py-1 rounded">Add task</a>
-    </div>
-    
-</div>
+<x-page-header
+    title="Delivery tasks management"
+    subtitle="Manage and monitor all delivery tasks"
+    icon="fa-solid fa-truck"
+>
+    <x-slot name="action">
+        <div class="flex gap-2">
+            <form method="get" class="flex gap-2">
+                <x-input
+                    name="q"
+                    type="text"
+                    :value="$q"
+                    placeholder="Search..."
+                    class="w-64"
+                />
+                <x-button type="submit" variant="primary" size="sm">
+                    <i class="fa-solid fa-search mr-1"></i>Search
+                </x-button>
+            </form>
+            <x-button variant="success" size="sm" href="{{ route('admin.deliveries.create') }}">
+                <i class="fa-solid fa-plus mr-1"></i>Add task
+            </x-button>
+        </div>
+    </x-slot>
+</x-page-header>
 
 @if(session('status'))
-    <div class="mb-3 p-2 rounded bg-green-100 text-green-800">{{ session('status') }}</div>
+    <x-alert variant="success" icon="fa-solid fa-circle-check" class="mb-4">
+        {{ session('status') }}
+    </x-alert>
 @endif
 
-<div class="overflow-x-auto">
-    <table class="min-w-full bg-white">
-        <thead>
-            <tr class="text-left border-b">
-                <th class="p-2">#</th>
-                <th class="p-2">Volunteer</th>
-                <th class="p-2">Donation</th>
-                <th class="p-2">Pickup</th>
-                <th class="p-2">Drop-off</th>
-                <th class="p-2">Status</th>
-                <th class="p-2">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
+<x-card class="overflow-x-auto">
+    <x-ui.table>
+        <x-ui.table-header>
+            <x-ui.table-row>
+                <x-ui.table-head>#</x-ui.table-head>
+                <x-ui.table-head>Volunteer</x-ui.table-head>
+                <x-ui.table-head>Donation</x-ui.table-head>
+                <x-ui.table-head>Pickup</x-ui.table-head>
+                <x-ui.table-head>Drop-off</x-ui.table-head>
+                <x-ui.table-head>Status</x-ui.table-head>
+                <x-ui.table-head>Actions</x-ui.table-head>
+            </x-ui.table-row>
+        </x-ui.table-header>
+        <x-ui.table-body>
             @forelse($deliveries as $delivery)
-            <tr class="border-b">
-                <td class="p-2">{{ $delivery->id }}</td>
-                <td class="p-2">{{ optional($delivery->volunteer)->name ?? '-' }}</td>
-                <td class="p-2">#{{ optional($delivery->donation)->id }} - {{ optional($delivery->donation)->food_type }}</td>
-                <td class="p-2">{{ $delivery->pickup_location }}</td>
-                <td class="p-2">{{ $delivery->dropoff_location }}</td>
-                <td class="p-2">{{ $delivery->status }}</td>
-                <td class="p-2 flex gap-2">
-                    <a class="text-blue-700" href="{{ route('admin.deliveries.edit', $delivery) }}">Edit</a>
-                    <form method="post" action="{{ route('admin.deliveries.destroy', $delivery) }}" onsubmit="return confirm('Delete task?');">
-                        @csrf
-                        @method('delete')
-                        <button class="text-red-700">Delete</button>
-                    </form>
-                </td>
-            </tr>
+                <x-ui.table-row>
+                    <x-ui.table-cell>{{ $delivery->id }}</x-ui.table-cell>
+                    <x-ui.table-cell>{{ optional($delivery->volunteer)->name ?? '-' }}</x-ui.table-cell>
+                    <x-ui.table-cell>#{{ optional($delivery->donation)->id }} - {{ optional($delivery->donation)->food_type }}</x-ui.table-cell>
+                    <x-ui.table-cell>{{ $delivery->pickup_location }}</x-ui.table-cell>
+                    <x-ui.table-cell>{{ $delivery->dropoff_location }}</x-ui.table-cell>
+                    <x-ui.table-cell>
+                        <x-badge :variant="$delivery->status === 'completed' ? 'success' : ($delivery->status === 'in_transit' ? 'warning' : 'info')">
+                            {{ ucfirst(str_replace('_', ' ', $delivery->status)) }}
+                        </x-badge>
+                    </x-ui.table-cell>
+                    <x-ui.table-cell>
+                        <div class="flex gap-2">
+                            <x-button variant="ghost" size="sm" href="{{ route('admin.deliveries.edit', $delivery) }}">
+                                <i class="fa-solid fa-edit"></i>
+                            </x-button>
+                            <form method="post" action="{{ route('admin.deliveries.destroy', $delivery) }}" onsubmit="return confirm('Delete task?');">
+                                @csrf
+                                @method('delete')
+                                <x-button type="submit" variant="ghost" size="sm" class="text-red-600 hover:text-red-700">
+                                    <i class="fa-solid fa-trash"></i>
+                                </x-button>
+                            </form>
+                        </div>
+                    </x-ui.table-cell>
+                </x-ui.table-row>
             @empty
-            <tr><td class="p-3" colspan="7">No records</td></tr>
+                <x-ui.table-row>
+                    <x-ui.table-cell colspan="7" class="text-center text-gray-500">
+                        <i class="fa-solid fa-inbox text-3xl mb-2 block"></i>
+                        No delivery tasks found
+                    </x-ui.table-cell>
+                </x-ui.table-row>
             @endforelse
-        </tbody>
-    </table>
-    <div class="mt-4">{{ $deliveries->links() }}</div>
+        </x-ui.table-body>
+    </x-ui.table>
+</x-card>
+
+<div class="mt-4">
+    {{ $deliveries->links() }}
+</div>
 @endsection
 
 

@@ -3,7 +3,7 @@
 @section('content')
 <div class="max-w-md mx-auto">
     <!-- Header Card -->
-    <div class="bg-gradient-to-r from-primary-800 to-primary-700 text-white rounded-lg p-6 shadow-lg text-center mb-6">
+    <x-card class="bg-gradient-to-r from-primary-800 to-primary-700 text-white text-center mb-6">
         <div class="flex items-center justify-center mb-3">
             <div class="h-16 w-16 rounded-full bg-white/20 flex items-center justify-center">
                 <i class="fa-solid fa-right-to-bracket text-white text-2xl"></i>
@@ -11,10 +11,10 @@
         </div>
         <h1 class="text-2xl font-bold mb-2">Welcome back</h1>
         <p class="text-primary-100">Sign in to your FoodBridge account</p>
-    </div>
+    </x-card>
 
     <!-- Login Card -->
-    <div class="bg-white rounded-lg p-6 shadow">
+    <x-card>
         @php($chosenRole = $role ?? null)
 
         <!-- Role Selection -->
@@ -64,19 +64,14 @@
 
         <!-- Error Messages -->
         @if($chosenRole && $errors->any())
-            <div class="mb-6 rounded-lg bg-red-50 border border-red-300 p-4">
-                <div class="flex items-start gap-2">
-                    <i class="fa-solid fa-circle-exclamation text-red-600 mt-0.5"></i>
-                    <div>
-                        <h3 class="text-sm font-semibold text-red-800 mb-1">There were errors with your submission</h3>
-                        <ul class="text-sm text-red-700 space-y-0.5">
-                            @foreach($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                </div>
-            </div>
+            <x-alert variant="error" icon="fa-solid fa-circle-exclamation" class="mb-6">
+                <x-slot name="title">There were errors with your submission</x-slot>
+                <ul class="text-sm space-y-0.5">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </x-alert>
         @endif
 
         <!-- Login Form -->
@@ -84,47 +79,38 @@
             @csrf
 
             <!-- Email Field -->
-            <div class="mb-4">
-                <label for="email" class="block mb-2 font-semibold text-gray-700">
-                    <i class="fa-solid fa-envelope mr-1"></i>Email
-                </label>
-                <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value="{{ old('email') }}"
-                    placeholder="name@example.com"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-700 focus:border-transparent @error('email') border-red-400 @enderror"
-                    required>
-                @error('email')
-                    <p class="text-red-600 text-sm mt-1"><i class="fa-solid fa-circle-exclamation mr-1"></i>{{ $message }}</p>
-                @enderror
-            </div>
+            <x-input
+                label="Email"
+                icon="fa-solid fa-envelope"
+                name="email"
+                type="email"
+                placeholder="name@example.com"
+                :value="old('email')"
+                :error="$errors->first('email')"
+                required
+                class="mb-4"
+            />
 
             <!-- Password Field -->
-            <div class="mb-4">
-                <label for="password" class="block mb-2 font-semibold text-gray-700">
-                    <i class="fa-solid fa-lock mr-1"></i>Password
-                </label>
-                <div class="relative">
-                    <input
-                        id="password"
-                        name="password"
-                        type="password"
-                        placeholder="Enter your password"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg pr-10 focus:outline-none focus:ring-2 focus:ring-primary-700 focus:border-transparent @error('password') border-red-400 @enderror"
-                        required>
+            <x-input
+                label="Password"
+                icon="fa-solid fa-lock"
+                name="password"
+                type="password"
+                placeholder="Enter your password"
+                :error="$errors->first('password')"
+                required
+                class="mb-4"
+            >
+                <x-slot name="suffix">
                     <button
                         type="button"
                         onclick="togglePassword('password')"
                         class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
                         <i class="fa-solid fa-eye" id="password-eye"></i>
                     </button>
-                </div>
-                @error('password')
-                    <p class="text-red-600 text-sm mt-1"><i class="fa-solid fa-circle-exclamation mr-1"></i>{{ $message }}</p>
-                @enderror
-            </div>
+                </x-slot>
+            </x-input>
 
             <!-- Remember Me -->
             <div class="mb-6 flex items-center gap-2">
@@ -139,11 +125,9 @@
             </div>
 
             <!-- Submit Button -->
-            <button
-                type="submit"
-                class="w-full bg-primary-700 hover:bg-primary-800 text-white font-semibold px-4 py-3 rounded-lg transition-colors">
+            <x-button type="submit" variant="primary" size="lg" class="w-full">
                 <i class="fa-solid fa-right-to-bracket mr-2"></i>Sign in
-            </button>
+            </x-button>
         </form>
 
         <!-- Footer Links -->
@@ -151,7 +135,7 @@
             Don't have an account?
             <a href="{{ route('register') }}" class="text-primary-700 hover:text-primary-800 font-semibold hover:underline">Sign up</a>
         </div>
-    </div>
+    </x-card>
 </div>
 
 <script>
