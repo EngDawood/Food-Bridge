@@ -322,6 +322,13 @@ class MatchingService
 
         \Log::info("Created delivery task {$task->id} for donation {$donation->id} and request {$request->id}");
 
+        // Notify all volunteers about the new delivery task
+        try {
+            $this->notificationService->notifyNewDeliveryTask($task);
+        } catch (\Exception $e) {
+            \Log::error("Failed to send new delivery task notifications: " . $e->getMessage());
+        }
+
         return $task;
     }
 

@@ -155,6 +155,9 @@ class NotificationSystem {
             'update': '<i class="fa-solid fa-sync text-blue-500"></i>',
             'alert': '<i class="fa-solid fa-exclamation-triangle text-yellow-500"></i>',
             'delivery': '<i class="fa-solid fa-truck text-purple-500"></i>',
+            'new_donation': '<i class="fa-solid fa-gift text-emerald-500"></i>',
+            'new_request': '<i class="fa-solid fa-hand-holding-heart text-pink-500"></i>',
+            'new_delivery_task': '<i class="fa-solid fa-truck-fast text-indigo-500"></i>',
             'default': '<i class="fa-solid fa-info-circle text-gray-500"></i>'
         };
 
