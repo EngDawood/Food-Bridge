@@ -1,61 +1,117 @@
 @extends('layouts.app')
 
 @section('content')
-<h1 class="text-xl font-semibold mb-4">Create user</h1>
+<div class="max-w-3xl mx-auto space-y-6">
+    <!-- Header -->
+    <x-page-header
+        title="Create User"
+        subtitle="Add a new user to the system"
+        icon="fa-solid fa-user-plus"
+    />
 
-@if(session('status'))
-    <div class="mb-3 p-2 rounded bg-green-100 text-green-800">{{ session('status') }}</div>
-@endif
+    <!-- Success Message -->
+    @if(session('status'))
+        <x-alert variant="success" title="Success!">
+            {{ session('status') }}
+        </x-alert>
+    @endif
 
-<form method="post" action="{{ route('admin.users.store') }}" class="space-y-3 max-w-xl">
-    @csrf
+    <!-- Form Card -->
+    <x-card>
+        <form method="post" action="{{ route('admin.users.store') }}">
+            @csrf
 
-    <div>
-        <label class="block text-sm mb-1">Name</label>
-        <input type="text" name="name" value="{{ old('name') }}" class="border rounded w-full px-2 py-1" required />
-        @error('name')<div class="text-red-700 text-sm">{{ $message }}</div>@enderror
-    </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Name -->
+                <x-input
+                    label="Name"
+                    icon="fa-solid fa-user"
+                    name="name"
+                    type="text"
+                    :value="old('name')"
+                    placeholder="Enter full name"
+                    :error="$errors->first('name')"
+                    required
+                />
 
-    <div>
-        <label class="block text-sm mb-1">Email</label>
-        <input type="email" name="email" value="{{ old('email') }}" class="border rounded w-full px-2 py-1" required />
-        @error('email')<div class="text-red-700 text-sm">{{ $message }}</div>@enderror
-    </div>
+                <!-- Email -->
+                <x-input
+                    label="Email"
+                    icon="fa-solid fa-envelope"
+                    name="email"
+                    type="email"
+                    :value="old('email')"
+                    placeholder="email@example.com"
+                    :error="$errors->first('email')"
+                    required
+                />
 
-    <div>
-        <label class="block text-sm mb-1">Password</label>
-        <div class="relative">
-            <input id="password" type="password" name="password" class="border rounded w-full px-2 py-1 pr-10" required />
-            <button type="button" onclick="togglePassword('password')"
-                    class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
-                <i class="fa-solid fa-eye" id="password-eye"></i>
-            </button>
-        </div>
-        @error('password')<div class="text-red-700 text-sm">{{ $message }}</div>@enderror
-    </div>
+                <!-- Password -->
+                <div>
+                    <label for="password" class="block mb-2 text-sm font-semibold text-gray-700">
+                        <i class="fa-solid fa-lock mr-1 text-primary-700"></i>Password
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <input
+                            id="password"
+                            type="password"
+                            name="password"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 pr-10 text-base focus:outline-none focus:ring-2 focus:ring-primary-700 focus:border-transparent @error('password') border-red-400 @enderror"
+                            required />
+                        <button type="button" onclick="togglePassword('password')"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                            <i class="fa-solid fa-eye" id="password-eye"></i>
+                        </button>
+                    </div>
+                    @error('password')
+                        <p class="text-red-600 text-sm mt-1"><i class="fa-solid fa-circle-exclamation mr-1"></i>{{ $message }}</p>
+                    @enderror
+                </div>
 
-    <div>
-        <label class="block text-sm mb-1">Role</label>
-        <select name="role" class="border rounded w-full px-2 py-1" required>
-            <option value="">Select role</option>
-            @foreach(['admin' => 'Admin', 'donor' => 'Donor', 'beneficiary' => 'Beneficiary', 'volunteer' => 'Volunteer'] as $val => $label)
-                <option value="{{ $val }}" @selected(old('role') === $val)>{{ $label }}</option>
-            @endforeach
-        </select>
-        @error('role')<div class="text-red-700 text-sm">{{ $message }}</div>@enderror
-    </div>
+                <!-- Role -->
+                <x-select
+                    label="Role"
+                    icon="fa-solid fa-user-tag"
+                    name="role"
+                    :selected="old('role')"
+                    placeholder="Select role"
+                    :options="[
+                        'admin' => 'Admin',
+                        'donor' => 'Donor',
+                        'beneficiary' => 'Beneficiary',
+                        'volunteer' => 'Volunteer'
+                    ]"
+                    :error="$errors->first('role')"
+                    required
+                />
 
-    <div>
-        <label class="block text-sm mb-1">Location</label>
-        <input type="text" name="location" value="{{ old('location') }}" class="border rounded w-full px-2 py-1" />
-        @error('location')<div class="text-red-700 text-sm">{{ $message }}</div>@enderror
-    </div>
+                <!-- Location -->
+                <div class="md:col-span-2">
+                    <x-input
+                        label="Location"
+                        icon="fa-solid fa-location-dot"
+                        name="location"
+                        type="text"
+                        :value="old('location')"
+                        placeholder="City, district, or area (optional)"
+                        :error="$errors->first('location')"
+                    />
+                </div>
+            </div>
 
-    <div class="flex gap-2">
-        <button class="bg-primary-700 hover:bg-primary-800 text-white px-4 py-2 rounded">Create</button>
-        <a class="px-4 py-2 border rounded" href="{{ route('admin.users') }}">Back</a>
-    </div>
-</form>
+            <!-- Action Buttons -->
+            <div class="mt-8 flex flex-col sm:flex-row gap-3">
+                <x-button type="submit" variant="primary">
+                    <i class="fa-solid fa-user-plus mr-2"></i>Create User
+                </x-button>
+                <x-button variant="secondary" href="{{ route('admin.users') }}">
+                    <i class="fa-solid fa-arrow-left mr-2"></i>Back
+                </x-button>
+            </div>
+        </form>
+    </x-card>
+</div>
 
 <script>
 function togglePassword(fieldId) {
@@ -74,4 +130,3 @@ function togglePassword(fieldId) {
 }
 </script>
 @endsection
-
