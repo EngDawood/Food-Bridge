@@ -61,7 +61,7 @@ class NotificationController extends Controller
                     'message' => $notification->message,
                     'type' => $notification->type,
                     'is_read' => $notification->is_read,
-                    'created_at' => $notification->created_at->diffForHumans(),
+                    'created_at' => $notification->created_at->locale('en')->diffForHumans(),
                 ];
             });
 

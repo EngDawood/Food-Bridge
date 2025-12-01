@@ -5,16 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\FoodRequest;
 use App\Models\Donation;
 use App\Services\MatchingService;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class FoodRequestController extends Controller
 {
     protected MatchingService $matchingService;
+    protected NotificationService $notificationService;
 
-    public function __construct(MatchingService $matchingService)
+    public function __construct(MatchingService $matchingService, NotificationService $notificationService)
     {
         $this->matchingService = $matchingService;
+        $this->notificationService = $notificationService;
     }
 
     public function index()
@@ -46,6 +49,13 @@ class FoodRequestController extends Controller
             'note' => $validated['note'] ?? null,
             'status' => 'pending',
         ]);
+
+        // Notify all donors and volunteers about the new request
+        try {
+            $this->notificationService->notifyNewRequest($foodRequest);
+        } catch (\Exception $e) {
+            \Log::error("Failed to send new request notifications: " . $e->getMessage());
+        }
 
         // Try to find a matching donation
         try {

@@ -126,6 +126,68 @@ class NotificationService
             'is_read' => false,
         ]);
     }
+
+    /**
+     * Notify all beneficiaries when a new donation is created
+     */
+    public function notifyNewDonation(Donation $donation): void
+    {
+        $beneficiaries = User::where('role', 'beneficiary')->get();
+        
+        foreach ($beneficiaries as $beneficiary) {
+            SystemNotification::create([
+                'user_id' => $beneficiary->id,
+                'message' => "New donation available: {$donation->food_type} (Quantity: {$donation->quantity})",
+                'type' => 'new_donation',
+                'is_read' => false,
+            ]);
+        }
+    }
+
+    /**
+     * Notify all donors and volunteers when a new request is created
+     */
+    public function notifyNewRequest(FoodRequest $request): void
+    {
+        // Notify all donors
+        $donors = User::where('role', 'donor')->get();
+        foreach ($donors as $donor) {
+            SystemNotification::create([
+                'user_id' => $donor->id,
+                'message' => "New food request: {$request->food_type} (Quantity: {$request->quantity})",
+                'type' => 'new_request',
+                'is_read' => false,
+            ]);
+        }
+
+        // Notify all volunteers
+        $volunteers = User::where('role', 'volunteer')->get();
+        foreach ($volunteers as $volunteer) {
+            SystemNotification::create([
+                'user_id' => $volunteer->id,
+                'message' => "New food request created: {$request->food_type} (Quantity: {$request->quantity})",
+                'type' => 'new_request',
+                'is_read' => false,
+            ]);
+        }
+    }
+
+    /**
+     * Notify all volunteers when a new delivery task is created
+     */
+    public function notifyNewDeliveryTask(DeliveryTask $task): void
+    {
+        $volunteers = User::where('role', 'volunteer')->get();
+        
+        foreach ($volunteers as $volunteer) {
+            SystemNotification::create([
+                'user_id' => $volunteer->id,
+                'message' => "New delivery task available: Pickup from {$task->pickup_location} to {$task->dropoff_location}",
+                'type' => 'new_delivery_task',
+                'is_read' => false,
+            ]);
+        }
+    }
 }
 
 

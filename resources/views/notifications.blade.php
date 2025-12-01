@@ -37,6 +37,16 @@
                             }
                         } elseif ($notification->type === 'alert' && auth()->user()->role === 'volunteer') {
                             $actionUrl = route('volunteer.tasks');
+                        } elseif ($notification->type === 'new_delivery_task' && auth()->user()->role === 'volunteer') {
+                            $actionUrl = route('volunteer.tasks');
+                        } elseif ($notification->type === 'new_donation' && auth()->user()->role === 'beneficiary') {
+                            $actionUrl = route('requests.index');
+                        } elseif ($notification->type === 'new_request') {
+                            if (auth()->user()->role === 'donor') {
+                                $actionUrl = route('donations.index');
+                            } elseif (auth()->user()->role === 'volunteer') {
+                                $actionUrl = route('volunteer.tasks');
+                            }
                         } elseif ($notification->type === 'update' || $notification->type === 'delivery') {
                             if (auth()->user()->role === 'donor') {
                                 $actionUrl = route('donations.index');
@@ -61,6 +71,12 @@
                                         <i class="fa-solid fa-exclamation-triangle text-yellow-500 text-xl"></i>
                                     @elseif($notification->type === 'delivery')
                                         <i class="fa-solid fa-truck text-purple-500 text-xl"></i>
+                                    @elseif($notification->type === 'new_donation')
+                                        <i class="fa-solid fa-gift text-emerald-500 text-xl"></i>
+                                    @elseif($notification->type === 'new_request')
+                                        <i class="fa-solid fa-hand-holding-heart text-pink-500 text-xl"></i>
+                                    @elseif($notification->type === 'new_delivery_task')
+                                        <i class="fa-solid fa-truck-fast text-indigo-500 text-xl"></i>
                                     @else
                                         <i class="fa-solid fa-info-circle text-gray-500 text-xl"></i>
                                     @endif
@@ -68,7 +84,7 @@
                                 <div class="flex-1">
                                     <p class="text-gray-800">{{ $notification->message }}</p>
                                     <p class="text-xs text-gray-500 mt-1">
-                                        {{ $notification->created_at->diffForHumans() }}
+                                        {{ $notification->created_at->locale('en')->diffForHumans() }}
                                     </p>
                                     @if($actionUrl)
                                         <p class="text-xs text-primary-600 mt-1 font-medium">
