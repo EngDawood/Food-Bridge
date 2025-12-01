@@ -21,12 +21,5 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
-agent.md
-docs.md
-.claude/
-agent.md
-CLAUDE.md
-.gemini/
-GEMINI.md
 
 .base/
