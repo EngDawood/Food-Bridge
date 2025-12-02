@@ -14,6 +14,7 @@
         'secondary' => 'bg-gray-200 hover:bg-gray-300 text-gray-700',
         'danger' => 'bg-red-600 hover:bg-red-700 text-white shadow-md hover:shadow-lg',
         'ghost' => 'hover:bg-gray-100 text-gray-700',
+        'success' => 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-md hover:shadow-lg',
     ];
 
     $sizeClasses = [
