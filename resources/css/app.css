@@ -42,6 +42,18 @@
 
     --radius: 0.5rem;
   }
+
+  /* Ensure pages using min-h-screen adapt to dynamic viewport height */
+  body.min-h-screen {
+    min-height: 100vh;
+    min-height: 100svh;
+  }
+
+  @supports (height: 100dvh) {
+    body.min-h-screen {
+      min-height: 100dvh;
+    }
+  }
 }
 
 @theme {
