@@ -72,8 +72,11 @@ This project is built on Laravel, a web application framework with expressive, e
 **Frontend:**
 * HTML5, Blade templating
 * Tailwind CSS 4.0
+* shadcn/ui 3.5.0 (Modern UI component library)
+* Chart.js 4.5.1 (Data visualization)
 * JavaScript (vanilla)
-* Vite 6.0 build tool
+* Vite 6.0.11 build tool
+* Axios 1.7.4 (HTTP client)
 
 **Development Tools:**
 * Laravel Pint (code styling)
