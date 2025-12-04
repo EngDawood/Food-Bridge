@@ -1,5 +1,5 @@
 @props([
-    'variant' => 'primary', // primary, accent, secondary, danger, ghost
+    'variant' => 'primary', // primary, accent, secondary, success, danger, ghost
     'size' => 'md', // sm, md, lg
     'href' => null,
     'type' => 'button',
@@ -12,8 +12,10 @@
         'primary' => 'bg-primary-700 hover:bg-primary-800 text-white shadow-md hover:shadow-lg',
         'accent' => 'bg-accent-500 hover:brightness-95 text-white shadow-md hover:shadow-lg',
         'secondary' => 'bg-gray-200 hover:bg-gray-300 text-gray-700',
+        'success' => 'bg-green-600 hover:bg-green-700 text-white shadow-md hover:shadow-lg',
         'danger' => 'bg-red-600 hover:bg-red-700 text-white shadow-md hover:shadow-lg',
         'ghost' => 'hover:bg-gray-100 text-gray-700',
+        'success' => 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-md hover:shadow-lg',
     ];
 
     $sizeClasses = [

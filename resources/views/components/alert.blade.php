@@ -1,5 +1,5 @@
 @props([
-    'variant' => 'info', // info, success, warning, danger
+    'variant' => 'info', // info, success, warning, danger, error
     'icon' => null,
     'title' => null,
 ])
@@ -10,6 +10,7 @@
         'success' => 'bg-gradient-to-br from-green-50 to-green-100 border-green-200 text-green-700',
         'warning' => 'bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200 text-yellow-700',
         'danger' => 'bg-gradient-to-br from-red-50 to-red-100 border-red-200 text-red-700',
+        'error' => 'bg-gradient-to-br from-red-50 to-red-100 border-red-200 text-red-700',
     ];
 
     $iconBgClasses = [
@@ -17,6 +18,7 @@
         'success' => 'bg-green-200 text-green-700',
         'warning' => 'bg-yellow-200 text-yellow-700',
         'danger' => 'bg-red-200 text-red-700',
+        'error' => 'bg-red-200 text-red-700',
     ];
 
     $titleClasses = [
@@ -24,6 +26,7 @@
         'success' => 'text-green-900',
         'warning' => 'text-yellow-900',
         'danger' => 'text-red-900',
+        'error' => 'text-red-900',
     ];
 
     $defaultIcons = [
@@ -31,6 +34,7 @@
         'success' => 'fa-solid fa-circle-check',
         'warning' => 'fa-solid fa-triangle-exclamation',
         'danger' => 'fa-solid fa-circle-exclamation',
+        'error' => 'fa-solid fa-circle-exclamation',
     ];
 
     $displayIcon = $icon ?? $defaultIcons[$variant];
