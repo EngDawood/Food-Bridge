@@ -154,8 +154,10 @@
         });
     </script>
 
-    <main class="max-w-6xl mx-auto px-4 py-8 flex-1 w-full">
-        @yield('content')
+    <main class="flex-1 w-full">
+        <div class="max-w-6xl mx-auto px-4 py-8">
+            @yield('content')
+        </div>
     </main>
 
     <footer class="bg-primary-900 text-white">
@@ -165,5 +167,4 @@
     </footer>
 </body>
 </html>
-
 

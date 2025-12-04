@@ -64,7 +64,7 @@
 
         <!-- Error Messages -->
         @if($chosenRole && $errors->any())
-            <x-alert variant="error" icon="fa-solid fa-circle-exclamation" class="mb-6">
+            <x-alert variant="danger" icon="fa-solid fa-circle-exclamation" class="mb-6">
                 <x-slot name="title">There were errors with your submission</x-slot>
                 <ul class="text-sm space-y-0.5">
                     @foreach($errors->all() as $error)
