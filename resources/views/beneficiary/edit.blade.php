@@ -1,36 +1,73 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-2xl mx-auto bg-white p-6 rounded shadow">
-    <h1 class="text-xl font-bold mb-4"><i class="fa-solid fa-pen-to-square mr-2"></i>Edit request</h1>
-    <form method="POST" action="{{ route('requests.update', $request) }}">
-        @csrf
-        @method('PUT')
-        <div class="grid md:grid-cols-2 gap-4">
-            <div>
-                <label class="block mb-1"><i class="fa-solid fa-utensils mr-1"></i>Food type</label>
-                <select name="food_type" class="w-full border rounded px-3 py-2" required>
-                    <option value="">Select food type</option>
+<div class="max-w-3xl mx-auto space-y-6">
+    <!-- Header -->
+    <x-page-header
+        title="Edit request"
+        subtitle="Update your food request details"
+        icon="fa-solid fa-pen-to-square"
+    />
+
+    <!-- Form Card -->
+    <x-card>
+        <form method="POST" action="{{ route('requests.update', $request) }}">
+            @csrf
+            @method('PUT')
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Food Type -->
+                <x-select
+                    label="Food type"
+                    icon="fa-solid fa-utensils"
+                    name="food_type"
+                    :selected="old('food_type', $request->food_type)"
+                    placeholder="Select food type"
+                    :error="$errors->first('food_type')"
+                    required
+                >
                     @foreach(\App\Helpers\FoodTypes::all() as $value => $label)
                         <option value="{{ $value }}" @selected(old('food_type', $request->food_type) === $value)>{{ $label }}</option>
                     @endforeach
-                </select>
+                </x-select>
+
+                <!-- Quantity -->
+                <x-input
+                    label="Quantity"
+                    icon="fa-solid fa-hashtag"
+                    name="quantity"
+                    type="number"
+                    :value="old('quantity', $request->quantity)"
+                    placeholder="e.g., 10"
+                    :error="$errors->first('quantity')"
+                    min="1"
+                    required
+                />
             </div>
-            <div>
-                <label class="block mb-1"><i class="fa-solid fa-hashtag mr-1"></i>Quantity</label>
-                <input name="quantity" value="{{ old('quantity', $request->quantity) }}" type="number" class="w-full border rounded px-3 py-2" min="1" required>
+
+            <!-- Note -->
+            <div class="mt-6">
+                <x-textarea
+                    label="Note"
+                    icon="fa-solid fa-sticky-note"
+                    name="note"
+                    rows="3"
+                    placeholder="Additional details about your request"
+                    :value="old('note', $request->note)"
+                    :error="$errors->first('note')"
+                />
             </div>
-            <div class="md:col-span-2">
-                <label class="block mb-1"><i class="fa-solid fa-sticky-note mr-1"></i>Note</label>
-                <textarea name="note" class="w-full border rounded px-3 py-2" rows="3">{{ old('note', $request->note) }}</textarea>
+
+            <!-- Action Buttons -->
+            <div class="mt-8 flex flex-col sm:flex-row gap-3">
+                <x-button type="submit" variant="primary">
+                    <i class="fa-solid fa-paper-plane mr-2"></i>Update Request
+                </x-button>
+                <x-button variant="secondary" href="/requests">
+                    Cancel
+                </x-button>
             </div>
-        </div>
-        <div class="mt-4">
-            <button class="bg-primary-700 hover:bg-primary-800 text-white px-4 py-2 rounded"><i class="fa-solid fa-paper-plane mr-1"></i>Update</button>
-            <a href="/requests" class="ml-2 underline">Cancel</a>
-        </div>
-    </form>
+        </form>
+    </x-card>
 </div>
 @endsection
-
-

@@ -4,44 +4,44 @@
 
 @section('content')
 <div class="max-w-4xl mx-auto">
-    <div class="flex items-center justify-between mb-6">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900">{{ $report->title }}</h1>
-            <p class="text-sm text-gray-600 mt-1">
-                <span class="px-2 py-1 rounded text-xs
-                    {{ $report->type === 'manual' ? 'bg-gray-200 text-gray-800' : '' }}
-                    {{ $report->type === 'daily' ? 'bg-blue-200 text-blue-800' : '' }}
-                    {{ $report->type === 'weekly' ? 'bg-green-200 text-green-800' : '' }}
-                    {{ $report->type === 'monthly' ? 'bg-purple-200 text-purple-800' : '' }}">
+    <x-page-header
+        :title="$report->title"
+        icon="fa-solid fa-file-alt"
+    >
+        <x-slot name="subtitle">
+            <div class="flex items-center gap-2 mt-1">
+                <x-badge :variant="$report->type === 'manual' ? 'secondary' : ($report->type === 'daily' ? 'info' : ($report->type === 'weekly' ? 'success' : 'primary'))">
                     {{ ucfirst($report->type) }} Report
+                </x-badge>
+                <span class="text-sm text-gray-600">
+                    Created by {{ $report->admin->name }} on {{ $report->created_at->format('F d, Y \a\t H:i') }}
                 </span>
-                &middot; Created by {{ $report->admin->name }} on {{ $report->created_at->format('F d, Y \a\t H:i') }}
-            </p>
-        </div>
-        <div class="flex gap-2">
-            <a href="{{ route('admin.reports.index') }}" class="px-4 py-2 border rounded hover:bg-gray-50">
+            </div>
+        </x-slot>
+        <x-slot name="action">
+            <x-button variant="secondary" size="sm" href="{{ route('admin.reports.index') }}">
                 <i class="fa-solid fa-arrow-left mr-1"></i>Back
-            </a>
-        </div>
-    </div>
+            </x-button>
+        </x-slot>
+    </x-page-header>
 
     @if(session('success'))
-        <div class="mb-4 bg-green-100 text-green-800 px-4 py-3 rounded">
+        <x-alert variant="success" icon="fa-solid fa-circle-check" class="mb-4">
             {{ session('success') }}
-        </div>
+        </x-alert>
     @endif
 
     <!-- Report Content -->
-    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+    <x-card class="mb-6">
         <h2 class="text-lg font-semibold text-gray-900 mb-4">Report Content</h2>
         <div class="prose max-w-none">
             <pre class="whitespace-pre-wrap text-gray-700 font-sans">{{ $report->content }}</pre>
         </div>
-    </div>
+    </x-card>
 
     <!-- Report Data (for automated reports) -->
     @if($report->data && is_array($report->data))
-    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+    <x-card class="mb-6">
         <h2 class="text-lg font-semibold text-gray-900 mb-4">Detailed Statistics</h2>
 
         <!-- Donations Stats -->
@@ -186,7 +186,7 @@
             </div>
         </div>
         @endif
-    </div>
+    </x-card>
     @endif
 
     <!-- Actions -->
@@ -195,9 +195,9 @@
               onsubmit="return confirm('Are you sure you want to delete this report?')">
             @csrf
             @method('DELETE')
-            <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+            <x-button type="submit" variant="danger">
                 <i class="fa-solid fa-trash mr-1"></i>Delete Report
-            </button>
+            </x-button>
         </form>
     </div>
 </div>
